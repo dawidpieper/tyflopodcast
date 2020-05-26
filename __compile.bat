@@ -1,0 +1,1 @@
+csc /target:winexe /platform:anycpu /out:tp.exe src/model.cs src/controller.cs src/view.cs src/view_waiter.cs src/view_player.cs src/view_searcher.cs src/view_radio.cs src/view_comments.cs src/app.cs /r:System.Net.Http.dll /r:lib/Newtonsoft.Json.dll /r:lib/Bass.Net.dll /optimize
