@@ -133,7 +133,9 @@ public void UpdatePodcasts() {
 lst_categories.Update();
 if(updateWorker!=null && !updateWorker.IsCompleted) {
 updateWorkerCTS.Cancel();
+try {
 updateWorker.Wait();
+} catch{}
 updateWorker=null;
 }
 updateWorkerCTS = new CancellationTokenSource();
@@ -154,6 +156,7 @@ lst_podcasts.Items.Add(p.name+" ("+p.time.ToString()+")");
 }
 if (updateWorkerCT.IsCancellationRequested) break;
 }
+if (updateWorkerCT.IsCancellationRequested) return;
 lst_podcasts.Update();
 UpdateDescription();
 updateWorker=null;
