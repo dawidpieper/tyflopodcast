@@ -13,7 +13,10 @@ using System.Text;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Tags;
 
 namespace Tyflopodcast {
 public class Controller {
@@ -83,6 +86,10 @@ Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, vol);
 public void PodcastSelected(Podcast p) {
 wnd_player = new PlayerWindow(p, this);
 SetURL("http://tyflopodcast.net/pobierz.php?id="+p.id.ToString()+"&plik=0");
+AudioInfo ai = new AudioInfo(stream);
+wnd_player.SetName(ai.title);
+wnd_player.SetArtist(ai.artist);
+wnd_player.SetChapters(ai.chapters);
 Play();
 tm_audioposition = new System.Timers.Timer(250);
 tm_audioposition.AutoReset = true;
