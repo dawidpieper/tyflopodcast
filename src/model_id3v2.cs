@@ -29,6 +29,7 @@ public ID3Frame[] subframes;
 
 private List<ID3Frame> ReadId3(int stream) {
 IntPtr q = Bass.BASS_ChannelGetTags(stream, BASSTag.BASS_TAG_ID3V2);
+if((int)q==0) return null;
 byte[] header = new byte[10];
 Marshal.Copy(q, header, 0, 10);
 if(header[3]!=3) return null;
@@ -138,6 +139,7 @@ frames = ReadId3(stream);
 
 private string GetFrameString(string id) {
 string r="";
+if(frames==null) return r;
 foreach(ID3Frame f in frames) {
 if(f.id==id && f.strValue!=null) {
 r=f.strValue;
@@ -151,6 +153,7 @@ public string title {get {return GetFrameString("TIT2");}}
 public string artist {get {return GetFrameString("TPE1");}}
 
 public Chapter[] chapters {get {
+if(frames==null) return null;
 List<Chapter> chapters = new List<Chapter>();
 foreach(ID3Frame f in frames) {
 if(f.id=="CHAP" && f.subframes!=null) {
