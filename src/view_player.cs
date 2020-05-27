@@ -16,7 +16,7 @@ private Podcast podcast;
 private Controller controller;
 
 private Label lb_timer, lb_volume, lb_chapters;
-private TrackBar tb_timer, tb_volume;
+private TyfloTrackBar tb_timer, tb_volume;
 private ListBox lst_chapters;
 private Button btn_play, btn_download, btn_comments, btn_close;
 
@@ -43,7 +43,7 @@ lb_timer.Size = new Size(50, 50);
 lb_timer.Location = new Point(20, 20);
 this.Controls.Add(lb_timer);
 
-tb_timer = new TrackBar();
+tb_timer = new TyfloTrackBar();
 tb_timer.Size = new Size(130, 50);
 tb_timer.Location = new Point(70, 20);
 tb_timer.Minimum=0;
@@ -51,6 +51,7 @@ tb_timer.Maximum=0;
 tb_timer.TickFrequency = 15;
 tb_timer.LargeChange=60;
 tb_timer.SmallChange=10;
+tb_timer.PreviewKeyDown += tb_timer_keyfilter;
 tb_timer.Scroll += (sender, e) => {
 controller.SetPosition((double)tb_timer.Value);
 };
@@ -62,7 +63,7 @@ lb_volume.Size = new Size(50, 50);
 lb_volume.Location = new Point(20, 90);
 this.Controls.Add(lb_volume);
 
-tb_volume = new TrackBar();
+tb_volume = new TyfloTrackBar();
 tb_volume.Size = new Size(130, 50);
 tb_volume.Location = new Point(70, 90);
 tb_volume.Minimum=0;
@@ -121,6 +122,15 @@ btn_close.Size = new Size(50, 50);
 btn_close.Location = new Point(260, 170);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
+}
+
+void tb_timer_keyfilter(Object sender, PreviewKeyDownEventArgs e) {
+switch(e.KeyCode) {
+case Keys.Up:
+case Keys.Down:
+e.IsInputKey = true;
+break;
+}
 }
 
 public void TBKeyDown(Object sender, KeyEventArgs e) {

@@ -14,7 +14,7 @@ public class RadioWindow : Form {
 private Controller controller;
 
 private Label lb_volume;
-private TrackBar tb_volume;
+private TyfloTrackBar tb_volume;
 private Button btn_play, btn_close;
 
 private string name=null;
@@ -34,7 +34,7 @@ lb_volume.Size = new Size(150,50);
 lb_volume.Location = new Point(20, 20);
 this.Controls.Add(lb_volume);
 
-tb_volume = new TrackBar();
+tb_volume = new TyfloTrackBar();
 tb_volume.Size = new Size(240, 50);
 tb_volume.Location = new Point(20, 90);
 tb_volume.Minimum=0;

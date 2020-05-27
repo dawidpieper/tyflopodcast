@@ -84,8 +84,17 @@ podcasts = new Podcast[int.Parse(values.First())];
 else {
 return -1;
 }
+int maxid=0;
+if(localPodcasts!=null) maxid=localPodcasts[0].id;
 int index=0;
 foreach(dynamic r in j) {
+if(page==1 && r.id<=maxid) {
+foreach(Podcast o in localPodcasts) {
+podcasts[index]=o;
+++index;
+}
+return 0;
+}
 Podcast p = new Podcast();
 p.name=WebUtility.HtmlDecode((String)r.title.rendered);
 p.time = r.date;
