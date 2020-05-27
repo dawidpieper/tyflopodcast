@@ -17,14 +17,16 @@ private Label lb_volume;
 private TrackBar tb_volume;
 private Button btn_play, btn_close;
 
+private string name=null;
+
 public RadioWindow(Controller tcontroller) {
 controller=tcontroller;
 
 this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
-this.Size = new Size(240,320);
+this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;
-this.Text = "Tyfloradio - Tyflopodcast";
+UpdateWindowCaption();
 
 lb_volume = new Label();
 lb_volume.Text = "Głośność";
@@ -71,5 +73,19 @@ public void SetVolume(int vol) {
 tb_volume.Value = vol;
 }
 
+public void SetName(string tname) {
+this.name=tname;
+UpdateWindowCaption();
+}
+
+public void UpdateWindowCaption() {
+StringBuilder sb = new StringBuilder();
+if(this.name!=null && this.name!="") {
+sb.Append(this.name);
+sb.Append(" - ");
+}
+sb.Append("Tyfloradio - Tyflopodcast");
+this.Text=sb.ToString();
+}
 }
 }

@@ -126,8 +126,10 @@ this.Controls.Add(btn_close);
 public void TBKeyDown(Object sender, KeyEventArgs e) {
 if (e.KeyCode == Keys.Space)
 controller.TogglePlayback();
-if(sender==(Object)lst_chapters && e.KeyCode == Keys.Enter)
+if(sender==(Object)lst_chapters && e.KeyCode == Keys.Enter) {
 GoToChapter();
+controller.Play();
+}
 }
 
 public void SetDuration(double duration) {

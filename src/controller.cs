@@ -10,6 +10,8 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
@@ -45,7 +47,7 @@ private void SetRadio() {
 SetURL("http://radio.tyflopodcast.net:8000");
 }
 
-private void Play() {
+public void Play() {
 if (stream != 0)
 Bass.BASS_ChannelPlay(stream, false);
 float vol=0;
@@ -105,14 +107,35 @@ tm_audioposition=null;
 wnd_player=null;
 }
 
+private SYNCPROC metaSync;
+
 public void RadioSelected() {
 SetRadio();
 wnd_radio = new RadioWindow(this);
+metaSync = new SYNCPROC(onMetaReceive);
+Bass.BASS_ChannelSetSync(stream, BASSSync.BASS_SYNC_META, 0, metaSync, IntPtr.Zero);
 Play();
 wnd_radio.ShowDialog(wnd);
 FreeStream();
 wnd_radio=null;
 }
+
+private void onMetaReceive(int handle, int channel, int data, IntPtr user) {
+string[] tags = Bass.BASS_ChannelGetTagsMETA(channel);
+Regex regex = new Regex(@"([^\=]+)\=\'([^\']+)*\'");
+string name;
+foreach (string tag in tags) {
+Match m = regex.Match(tag);
+if(m.Success) {
+TextInfo ti = new CultureInfo("pl-PL",false).TextInfo;
+name = m.Groups[2].Captures[0].Value.Replace("_", " ");
+name = ti.ToTitleCase(name);
+wnd_radio.SetName(name);
+}
+}
+}
+
+
 
 public void TogglePlayback() {
 if(stream==0) return;
