@@ -7,6 +7,7 @@ License: General Public License (GPLv3)
 using System;
 using System.Timers;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Text;
@@ -30,7 +31,10 @@ private RadioWindow wnd_radio=null;
 private CommentsWindow wnd_comments;
 private System.Timers.Timer tm_audioposition=null;
 
-public Controller() {
+private string[] args;
+
+public Controller(string[] targs) {
+args=targs;
 if(!Bass.BASS_IsStarted()) Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
 }
 
@@ -41,6 +45,11 @@ wnd=twnd;
 private void SetURL(string url) {
 if(stream!=0) FreeStream();
 stream = Bass.BASS_StreamCreateURL(url, 0, BASSFlag.BASS_DEFAULT, null, IntPtr.Zero);
+}
+
+private void SetFile(string file) {
+if(stream!=0) FreeStream();
+stream = Bass.BASS_StreamCreateFile(file, 0, 0, BASSFlag.BASS_DEFAULT);
 }
 
 private void SetRadio() {
@@ -85,9 +94,12 @@ float vol = ((float)volume)/100;
 Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, vol);
 }
 
-public void PodcastSelected(Podcast p) {
+public void PodcastSelected(Podcast p, string location=null) {
 wnd_player = new PlayerWindow(p, this);
+if(location==null)
 SetURL("http://tyflopodcast.net/pobierz.php?id="+p.id.ToString()+"&plik=0");
+else
+SetFile(location);
 AudioInfo ai = new AudioInfo(stream);
 wnd_player.SetName(ai.title);
 wnd_player.SetArtist(ai.artist);
@@ -204,6 +216,73 @@ Comment[] comments;
 if(Podcasts.GetPodcastComments(podcast.id, out comments)) {
 wnd_comments = new CommentsWindow(podcast, comments, this);
 wnd_comments.ShowDialog(wnd_player);
+}
+}
+
+public void UpdateDatabase(bool reset=false) {
+if(wnd==null) return;
+bool cancelled = true;
+var l = new LoadingWindow("Pobieranie bazy podcastów");
+l.SetStatus("Inicjowanie...");
+Podcast[] podcasts=null;
+bool localLoaded = Podcasts.GetLocalPodcasts(out podcasts);
+bool downloadRemote=true;
+if(localLoaded && !reset)
+if(MessageBox.Show("Czy chcesz zaktualizować listę dostępnych podcastów?", "Tyflopodcast", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+downloadRemote=false;
+if(downloadRemote) {
+int totalPages=-1, leftPages=-1;
+Task.Factory.StartNew(()=> {
+podcasts = Podcasts.FetchPodcasts(ref leftPages, ref totalPages, reset);
+l.SetStatus("Czyszczenie...");
+Podcasts.CleanUp();
+cancelled = false;
+l.Close();
+});
+Task.Factory.StartNew(()=> {
+l.SetStatus("Łączenie...");
+bool s=false;
+int p=-1;
+for(;;) {
+if(!s && totalPages!=-1) {
+s=true;
+l.SetStatus("Pobieranie informacji o bazie podcastów...");
+}
+else if(s && p!=leftPages) {
+l.SetStatus("Pobieranie strony "+(totalPages-leftPages).ToString()+" z "+totalPages.ToString()+"...");
+p=leftPages;
+int pr = (int)((double)(totalPages-leftPages)/totalPages*100.0);
+l.SetPercentage(pr);
+if(leftPages==0) break;
+}
+}
+});
+l.ShowDialog(wnd);
+if(cancelled || podcasts==null) return;//Environment.Exit(0);
+}
+wnd.Clear();
+foreach(Category c in Podcasts.categories) wnd.AddCategory(c);
+foreach(Podcast p in podcasts) wnd.AddPodcast(p);
+wnd.UpdatePodcasts();
+
+}
+
+public void Initiate() {
+bool reset=false;
+Podcast p;
+string location=null;
+for(int i=0; i<args.Count(); ++i) {
+if(args[i].ToLower()=="-b") reset=true;
+else if(args[i].ToLower()=="-f" && i<args.Count()-1) {
+location=args[i+1];
+++i;
+}
+}
+UpdateDatabase(reset);
+if(location!=null) {
+p = new Podcast();
+p.name=location;
+PodcastSelected(p, location);
 }
 }
 }

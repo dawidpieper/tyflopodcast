@@ -73,7 +73,7 @@ Regex htregex = new Regex(@"\<[^\>]*\>");
 return WebUtility.HtmlDecode(htregex.Replace(source, String.Empty));
 }
 
-private static int fetchPodcastsConverter(int page, HttpResponseMessage response, ref Podcast[] podcasts) {
+private static int fetchPodcastsConverter(int page, HttpResponseMessage response, ref Podcast[] podcasts, bool reset=false) {
 var json = response.Content.ReadAsStringAsync().Result;
 dynamic j = JsonConvert.DeserializeObject(json);
 var headers = response.Headers;
@@ -88,7 +88,7 @@ int maxid=0;
 if(localPodcasts!=null) maxid=localPodcasts[0].id;
 int index=0;
 foreach(dynamic r in j) {
-if(page==1 && r.id<=maxid) {
+if(page==1 && r.id<=maxid && !reset) {
 foreach(Podcast o in localPodcasts) {
 podcasts[index]=o;
 ++index;
@@ -114,14 +114,14 @@ return int.Parse(values.First());
 return 0;
 }
 
-private static bool FetchPodcastsPiece(ref Podcast[] podcasts, ref int leftPages, ref int totalPages, int page=1) {
+private static bool FetchPodcastsPiece(ref Podcast[] podcasts, ref int leftPages, ref int totalPages, int page=1, bool reset=false) {
 if(apiClient==null) Init();
 Func<int, Task<HttpResponseMessage>> getter = (page) => {
 String u=jsonurl+"/posts?per_page=100&page="+page.ToString();
 return apiClient.GetAsync(u);
 };
 HttpResponseMessage response = getter(page).Result;
-int pages = fetchPodcastsConverter(page, response, ref podcasts);
+int pages = fetchPodcastsConverter(page, response, ref podcasts, reset);
 if(pages>0) {
 totalPages=pages;
 if(pages>page && page==1) {
@@ -133,7 +133,7 @@ for(int i=2; i<=pages; ++i)
 if(tasks[i-2]!=null && tasks[i-2].IsCompleted) {
 --leftPages;
 HttpResponseMessage m = tasks[i-2].Result;
-fetchPodcastsConverter(i, m, ref podcasts);
+fetchPodcastsConverter(i, m, ref podcasts, reset);
 tasks[i-2].Dispose();
 tasks[i-2]=null;
 --waiting;
@@ -144,9 +144,9 @@ tasks[i-2]=null;
 return true;
 }
 
-public static Podcast[] FetchPodcasts() {
+public static Podcast[] FetchPodcasts(bool reset=false) {
 int a=0,b=0;
-return FetchPodcasts(ref a, ref b);
+return FetchPodcasts(ref a, ref b, reset);
 }
 
 private static List<Category> GetCategories(int page=1) {
@@ -173,10 +173,10 @@ cs=(List<Category>)cs.Concat(GetCategories(page+1));
 return cs;
 }
 
-public static Podcast[] FetchPodcasts(ref int leftPages, ref int totalPages) {
+public static Podcast[] FetchPodcasts(ref int leftPages, ref int totalPages, bool reset=false) {
 categories = GetCategories();
 Podcast[] podcasts=null;
-FetchPodcastsPiece(ref podcasts, ref leftPages, ref totalPages);
+FetchPodcastsPiece(ref podcasts, ref leftPages, ref totalPages, 1, reset);
 localPodcasts = new List<Podcast>(podcasts);
 SaveLocalDB();
 return podcasts;

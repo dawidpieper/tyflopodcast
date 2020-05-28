@@ -62,6 +62,8 @@ btn_close.Size = new Size(100, 50);
 btn_close.Location = new Point(180, 170);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
+
+this.CancelButton = btn_close;;
 }
 
 public void TBKeyDown(Object sender, KeyEventArgs e) {

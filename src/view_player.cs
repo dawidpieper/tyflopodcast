@@ -122,6 +122,13 @@ btn_close.Size = new Size(50, 50);
 btn_close.Location = new Point(260, 170);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
+
+this.CancelButton = btn_close;;
+
+if(podcast.id==0) {
+btn_download.Enabled=false;
+btn_comments.Enabled=false;
+}
 }
 
 void tb_timer_keyfilter(Object sender, PreviewKeyDownEventArgs e) {

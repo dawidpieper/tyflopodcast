@@ -44,6 +44,8 @@ podcasts = new List<Podcast>();
 currentPodcasts = new List<Podcast>();
 collections = new List<CustomCollection>();
 
+this.Shown += (sender, e) => controller.Initiate();
+
 this.Size = new Size(640,480);
 this.Text = "Tyflopodcast";
 
@@ -55,8 +57,6 @@ this.Controls.Add(lb_categories);
 lst_categories = new ListBox();
 lst_categories.Size = new Size(100, 380);
 lst_categories.Location = new Point(20,80);
-lst_categories.Items.Add("Wszystkie podcasty");
-lst_categories.SelectedIndex=0;
 this.Controls.Add(lst_categories);
 lst_categories.SelectedIndexChanged += (sender, e) => UpdatePodcasts();
 
@@ -94,25 +94,26 @@ edt_description.Multiline = true;
 this.Controls.Add(edt_description);
 
 this.Menu = new MainMenu();
-MenuItem item_podcast = new MenuItem("Podcast");
+MenuItem item_podcast = new MenuItem("&Podcast");
 this.Menu.MenuItems.Add(item_podcast);
-item_podcast.MenuItems.Add("Otwórz", (sender, e) => {
+item_podcast.MenuItems.Add("&Otwórz", (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.PodcastSelected(currentPodcasts[lst_podcasts.SelectedIndex]);
 });
-item_podcast.MenuItems.Add("Pobierz", (sender, e) => {
+item_podcast.MenuItems.Add("&Pobierz", (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.DownloadPodcast(currentPodcasts[lst_podcasts.SelectedIndex]);
 });
-item_podcast.MenuItems.Add("Pokaż komentarze", (sender, e) => {
+item_podcast.MenuItems.Add("Pokaż &komentarze", (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.ShowComments(currentPodcasts[lst_podcasts.SelectedIndex]);
 });
-item_podcast.MenuItems.Add("Pokaż pobrane", (sender, e) => controller.ShowDownloads());
-MenuItem item_tyflopodcast = new MenuItem("tyflopodcast.net");
+item_podcast.MenuItems.Add("Pok&aż pobrane", (sender, e) => controller.ShowDownloads());
+MenuItem item_tyflopodcast = new MenuItem("&tyflopodcast.net");
 this.Menu.MenuItems.Add(item_tyflopodcast);
-item_tyflopodcast.MenuItems.Add("Tyfloradio", (sender, e) => controller.RadioSelected());
-item_tyflopodcast.MenuItems.Add("Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()));
+item_tyflopodcast.MenuItems.Add("Tyflo&radio", (sender, e) => controller.RadioSelected());
+item_tyflopodcast.MenuItems.Add("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()));
+item_tyflopodcast.MenuItems.Add("&Odbuduj bazę podcastów", (sender, e) => controller.UpdateDatabase(true));
 
 ContextMenu ctx_podcasts = new ContextMenu();
 foreach(MenuItem mi in item_podcast.MenuItems)
@@ -182,6 +183,16 @@ return;
 }
 Podcast p = currentPodcasts[lst_podcasts.SelectedIndex];
 edt_description.Text = p.description.Replace("\n", "\r\n");
+}
+
+public void Clear() {
+categories.Clear();
+podcasts.Clear();
+currentPodcasts.Clear();
+lst_categories.Items.Clear();
+lst_podcasts.Items.Clear();
+lst_categories.Items.Add("Wszystkie podcasty");
+lst_categories.SelectedIndex=0;
 }
 }
 }

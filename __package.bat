@@ -13,5 +13,5 @@ ilmerge tp.exe lib/Newtonsoft.Json.dll lib/Bass.Net.dll /out:bin\tyflopodcast.ex
 del bin\tyflopodcast.pdb
 md out 2>nul
 iscc installer.iss
-7z a out/tyflopodcast.zip bin\
+7z u out/tyflopodcast.zip bin\
 7z rn out\tyflopodcast.zip bin\ tyflopodcast\
