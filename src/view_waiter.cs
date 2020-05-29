@@ -27,7 +27,7 @@ lb_status.Location = new Point(20, 20);
 this.Controls.Add(lb_status);
 
 pb_percentage = new ProgressBar();
-pb_percentage.Size = new Size(120, 40);
+pb_percentage.Size = new Size(120, 30);
 pb_percentage.Location = new Point(100, 115);
 pb_percentage.Minimum=0;
 pb_percentage.Step=1;
@@ -36,8 +36,8 @@ this.Controls.Add(pb_percentage);
 
 btn_cancel = new Button();
 btn_cancel.Text = "Anuluj";
-btn_cancel.Size = new Size(200, 50);
-btn_cancel.Location = new Point(20, 170);
+btn_cancel.Size = new Size(100, 60);
+btn_cancel.Location = new Point(120, 160);
 btn_cancel.Click += (Object, e) => {this.Close();};
 this.Controls.Add(btn_cancel);
 this.CancelButton = btn_cancel;

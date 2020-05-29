@@ -62,13 +62,18 @@ Bass.BASS_ChannelPlay(stream, false);
 float vol=0;
 Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, ref vol);
 if(wnd_player!=null) {
-long t = Bass.BASS_ChannelGetLength(stream);
-double sec = Bass.BASS_ChannelBytes2Seconds(stream, t);
-wnd_player.SetDuration(sec);
+wnd_player.SetDuration(GetDuration());
 wnd_player.SetVolume((int)(vol*100));
 }
 else if(wnd_radio!=null)
 wnd_radio.SetVolume((int)(vol*100));
+}
+
+public double GetDuration() {
+if(stream==0) return 0;
+long t = Bass.BASS_ChannelGetLength(stream);
+double sec = Bass.BASS_ChannelBytes2Seconds(stream, t);
+return sec;
 }
 
 private void FreeStream() {
@@ -85,7 +90,23 @@ wnd_player.SetPosition(sec);
 public void SetPosition(double position) {
 if(stream==0) return;
 long t = Bass.BASS_ChannelSeconds2Bytes(stream, position);
-Bass.BASS_ChannelSetPosition(stream, t);
+if(wnd_player!=null && Bass.BASS_ChannelSetPosition(stream, t)==false) {
+Bass.BASS_ChannelPause(stream);
+var l = new LoadingWindow("Buforowanie...");
+l.SetStatus("Buforowanie...");
+long length = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_SIZE);
+long prebuffered = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
+long needed = (long)(length*position/GetDuration());
+Task.Factory.StartNew(()=> {
+do {
+long downloaded = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
+int p = (int)((100*(downloaded-prebuffered)/(needed-prebuffered)));
+if(p<100) l.SetPercentage(p);
+} while(Bass.BASS_ChannelSetPosition(stream, t)==false);
+if(!l.IsDisposed) l.Close();
+});
+l.ShowDialog(wnd_player);
+}
 UpdatePosition();
 }
 
