@@ -32,7 +32,7 @@ IntPtr q = Bass.BASS_ChannelGetTags(stream, BASSTag.BASS_TAG_ID3V2);
 if((int)q==0) return null;
 byte[] header = new byte[10];
 Marshal.Copy(q, header, 0, 10);
-if(header[3]!=3) return null;
+if(header[3]<3 || header[3]>4) return null;
 bool unsync=(header[5]&128)>0;
 bool extheader=(header[5]&64)>0;
 int size = header[9]+header[8]*128+header[7]*16384+header[6]*2097152;
@@ -95,27 +95,24 @@ byte[] t = new byte[1];
 Marshal.Copy(q, t, 0, 1);
 q+=1;
 left-=1;
-bool unicoded = (t[0]==1);
-bool feff=true;
-if(unicoded) {
+Encoding encoding = System.Text.Encoding.ASCII;
+if(t[0]==0)
+encoding = System.Text.Encoding.GetEncoding("ISO-8859-1");
+else if(t[0]==1) {
 byte[] u = new byte[2];
 Marshal.Copy(q, u, 0, 2);
-if(u[0]>=0xfe && u[1]>=0xfe) {
 q+=2;
 left-=2;
-if(u[1]==0xff) feff=false;
+if(u[1]==0xff) encoding = System.Text.Encoding.GetEncoding("UnicodeFFE");
+else encoding = System.Text.Encoding.GetEncoding("UTF-16");
 }
-}
+else if(t[0]==2)
+encoding = System.Text.Encoding.GetEncoding("UTF-16");
+else if(t[0]==3)
+encoding = System.Text.Encoding.GetEncoding("UTF-8");
 byte[] content = new byte[left];
 Marshal.Copy(q, content, 0, left);
-if(!unicoded)
-f.strValue = System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(content);
-else {
-if(feff)
-f.strValue = System.Text.Encoding.GetEncoding("UTF-16").GetString(content);
-else
-f.strValue = System.Text.Encoding.GetEncoding("unicodeFFFE").GetString(content);
-}
+f.strValue = encoding.GetString(content);
 q+=left;
 left=0;
 }
