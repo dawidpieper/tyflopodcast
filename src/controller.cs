@@ -120,7 +120,7 @@ Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, vol);
 public void SetTempo(int tempo) {
 float t=0;
 if(tempo<0) t=tempo;
-else t=tempo;
+else t=tempo*3;
 Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_TEMPO, t);
 }
 

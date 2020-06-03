@@ -1,8 +1,8 @@
 [Setup]
 AppId={{Ca8D3121-34E1-4A99-9188-7E441CDA0DD0}
 AppName=Tyflopodcast
-AppVersion=0.4
-AppVerName=Tyflopodcast 0.4
+AppVersion=0.6
+AppVerName=Tyflopodcast 0.6
 AppPublisher=Dawid Pieper
 AppPublisherURL=https://elten-net.eu
 AppSupportURL=https://github.com/dawidpieper/tyflopodcast/issues

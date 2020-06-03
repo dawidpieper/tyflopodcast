@@ -11,7 +11,7 @@ copy /y lib32\*.dll bin\lib32\*.dll 1>nul
 copy /y lib64\*.dll bin\lib64\*.dll 1>nul
 ilmerge tp.exe lib/Newtonsoft.Json.dll lib/Bass.Net.dll /out:bin\tyflopodcast.exe
 del bin\tyflopodcast.pdb
-md out 2>nul
+del /Q out\*
 iscc installer.iss
-7z u out/tyflopodcast.zip bin\
+7z a out/tyflopodcast.zip bin\
 7z rn out\tyflopodcast.zip bin\ tyflopodcast\
