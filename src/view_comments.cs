@@ -8,6 +8,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Text;
+using System.Linq;
 
 namespace Tyflopodcast {
 public class CommentsWindow : Form {
@@ -15,8 +16,9 @@ private Podcast podcast;
 private Controller controller;
 private Comment[] comments;
 
-private Label lb_comments;
-private TextBox edt_comments;
+private Label lb_comments, lb_comment;
+private ListBox lst_comments;
+private TextBox edt_comment;
 private Button btn_close;
 
 public CommentsWindow(Podcast tpodcast, Comment[] tcomments, Controller tcontroller) {
@@ -26,66 +28,65 @@ comments=tcomments;
 
 this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
-this.Size = new Size(240,320);
+this.Size = new Size(480, 360);
 this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = "Komentarze do podcastu "+podcast.name+" - Tyflopodcast";
 
 lb_comments = new Label();
 lb_comments.Text = "Komentarze";
-lb_comments.Size = new Size(120,50);
+lb_comments.Size = new Size(150, 50);
 lb_comments.Location = new Point(20, 20);
 this.Controls.Add(lb_comments);
 
-edt_comments = new TextBox();
-edt_comments.Size = new Size(240, 120);
-edt_comments.Location = new Point(60,20);
-edt_comments.ReadOnly = true;
-edt_comments.Multiline = true;
-this.Controls.Add(edt_comments);
+lst_comments = new ListBox();
+lst_comments.Size = new Size(150, 200);
+lst_comments.Location = new Point(20, 80);
+this.Controls.Add(lst_comments);
 
-SetComments(comments);
+lb_comment = new Label();
+lb_comment.Text = "Treść komentarza";
+lb_comment.Size = new Size(250, 50);
+lb_comments.Location = new Point(190, 20);
+this.Controls.Add(lb_comments);
+
+edt_comment = new TextBox();
+edt_comment.Size = new Size(250, 200);
+edt_comment.Location = new Point(190, 80);
+edt_comment.ReadOnly = true;
+edt_comment.Multiline = true;
+this.Controls.Add(edt_comment);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(50, 50);
-btn_close.Location = new Point(180, 170);
+btn_close.Size = new Size(120, 40);
+btn_close.Location = new Point(155, 300);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 
-this.CancelButton = btn_close;
-}
+lst_comments.SelectedIndexChanged += (sender, e) => {
+if(lst_comments.SelectedIndex<comments.Count()) ShowComment(comments[lst_comments.SelectedIndex]);
+};
 
-private string FormatTime(int tim) {
-int hr, min, sec;
-hr = tim/3600;
-min = (tim%3600)/60;
-sec = tim%60;
-StringBuilder sb = new StringBuilder();
-if(hr>0) {
-sb.Append(hr.ToString("D2"));
-sb.Append(" godz. ");
-}
-if(min>0) {
-sb.Append(min.ToString("D2"));
-sb.Append(" min. ");
-}
-sb.Append(sec.ToString("D2"));
-sb.Append(" sek.");
-return sb.ToString();
+this.CancelButton = btn_close;
+
+SetComments(comments);
 }
 
 public void SetComments(Comment[] tcomments) {
 comments=tcomments;
-var sb = new StringBuilder();
+lst_comments.Items.Clear();
 foreach(Comment c in comments) {
+StringBuilder sb = new StringBuilder();
 sb.Append(c.author);
-sb.Append("\r\n");
-sb.Append(c.time.ToString());
-sb.Append("\r\n");
-sb.Append(c.content).Replace("\n", "\r\n");
-sb.Append("\r\n\r\n");
+sb.Append(": ");
+sb.Append(c.content.Replace("\n", "").Substring(0, 10));
+if(c.content.Length>10) sb.Append("...");
+lst_comments.Items.Add(sb.ToString());
 }
-edt_comments.Text = sb.ToString();
+}
+
+private void ShowComment(Comment comment) {
+edt_comment.Text = comment.content.Replace("\n", "\r\n")+"\r\n\r\n"+comment.time.ToString();
 }
 }
 }
