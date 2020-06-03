@@ -19,7 +19,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Tags;
+using Un4seen.Bass.AddOn.Fx;
 
 namespace Tyflopodcast {
 public class Controller {
@@ -44,12 +44,14 @@ wnd=twnd;
 
 private void SetURL(string url) {
 if(stream!=0) FreeStream();
-stream = Bass.BASS_StreamCreateURL(url, 0, BASSFlag.BASS_DEFAULT, null, IntPtr.Zero);
+int s = Bass.BASS_StreamCreateURL(url, 0, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE, null, IntPtr.Zero);
+stream = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_FX_FREESOURCE);
 }
 
 private void SetFile(string file) {
 if(stream!=0) FreeStream();
-stream = Bass.BASS_StreamCreateFile(file, 0, 0, BASSFlag.BASS_DEFAULT);
+int s = Bass.BASS_StreamCreateFile(file, 0, 0, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE);
+stream = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_FX_FREESOURCE);
 }
 
 private void SetRadio() {
@@ -113,6 +115,13 @@ UpdatePosition();
 public void SetVolume(int volume) {
 float vol = ((float)volume)/100;
 Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, vol);
+}
+
+public void SetTempo(int tempo) {
+float t=0;
+if(tempo<0) t=tempo;
+else t=tempo;
+Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_TEMPO, t);
 }
 
 public void PodcastSelected(Podcast p, string location=null) {

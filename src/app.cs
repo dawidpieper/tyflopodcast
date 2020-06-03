@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Fx;
 
 namespace Tyflopodcast {
 
@@ -23,8 +24,10 @@ public static void PrepareLibraries() {
 bool suc=false;
 if(IntPtr.Size == 8) {
 suc=Bass.LoadMe(Application.StartupPath+@"\lib64");
+if(suc) suc=BassFx.LoadMe(Application.StartupPath+@"\lib64");
 } else {
 suc=Bass.LoadMe(Application.StartupPath+@"\lib32");
+if(suc) suc=BassFx.LoadMe(Application.StartupPath+@"\lib32");
 }
 if(!suc) {
 MessageBox.Show("Możliwe, że biblioteka nie znajduje się już w poprzedniej lokalizacji. Jeśli program był przenoszony, należy się upewnić czy wraz z nim przeniesiono pozostałe foldery aplikacji. W razie problemów zaleca się ponowne pobranie programu.", "Nie udało się załadować biblioteki Bass.", 0, MessageBoxIcon.Error);
