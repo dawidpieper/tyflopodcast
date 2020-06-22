@@ -237,8 +237,23 @@ l.ShowDialog(wnd);
 
 public void SearchResults(Podcast[] results, string term="") {
 if(results.Count()==0) return;
+var lresults = new List<Podcast>();
+var ids = new List<int>();
+Podcast l = new Podcast();
+l.id=0;
+foreach(Podcast p in results) {
+if(ids.Contains(p.id)) continue;
+int n=lresults.Count();
+if(l.id!=0) {
+for(; n>0; --n)
+if(lresults[n-1].time>p.time) break;
+}
+lresults.Insert(n, p);
+ids.Add(p.id);
+l=p;
+}
 if(wnd!=null)
-wnd.AddCustomCollection("Szukaj: "+term, results, true);
+wnd.AddCustomCollection("Szukaj: "+term, lresults.ToArray(), true);
 }
 
 public void ShowComments(Podcast podcast) {
