@@ -12,6 +12,12 @@ copy /y lib64\*.dll bin\lib64\*.dll 1>nul
 ilmerge tp.exe lib/Newtonsoft.Json.dll lib/Bass.Net.dll /out:bin\tyflopodcast.exe
 del bin\tyflopodcast.pdb
 del /Q out\*
+
+signtool sign /n "Dawid Pieper" /t http://time.certum.pl /fd sha256 /v bin\tyflopodcast.exe
+
 iscc installer.iss
+
+signtool sign /n "Dawid Pieper" /t http://time.certum.pl /fd sha256 /v out\tyflopodcast_setup.exe
+
 7z a out/tyflopodcast.zip bin\
 7z rn out\tyflopodcast.zip bin\ tyflopodcast\

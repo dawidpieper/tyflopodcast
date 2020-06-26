@@ -114,6 +114,11 @@ this.Menu.MenuItems.Add(item_tyflopodcast);
 item_tyflopodcast.MenuItems.Add("Tyflo&radio", (sender, e) => controller.RadioSelected());
 item_tyflopodcast.MenuItems.Add("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()));
 item_tyflopodcast.MenuItems.Add("&Odbuduj bazę podcastów", (sender, e) => controller.UpdateDatabase(true));
+MenuItem item_help = new MenuItem("Pomo&c");
+this.Menu.MenuItems.Add(item_help);
+item_help.MenuItems.Add("Strona Internetowa &tyflopodcast.net", (sender, e) => controller.ShowURL("http://tyflopodcast.net"));
+item_help.MenuItems.Add("Strona Internetowa tej &aplikacji", (sender, e) => controller.ShowURL("https://github.com/dawidpieper/tyflopodcast"));
+item_help.MenuItems.Add("&O programie", (sender, e) => AppAbout());
 
 ContextMenu ctx_podcasts = new ContextMenu();
 foreach(MenuItem mi in item_podcast.MenuItems)
@@ -193,6 +198,19 @@ lst_categories.Items.Clear();
 lst_podcasts.Items.Clear();
 lst_categories.Items.Add("Wszystkie podcasty");
 lst_categories.SelectedIndex=0;
+}
+
+private void AppAbout() {
+string title = "Tyflopodcast wersja "+Program.version;
+string message = @"
+Klient portalu tyflopodcast.net.
+Copyright (©) 2020 Dawid Pieper
+
+Niniejszy program jest wolnym oprogramowaniem.
+Dozwala się jego dalsze rozprowadzanie lub modyfikację  na warunkach licencji GNU General Public License V3, wydanej przez Free Software Foundation.
+Kod źródłowy aplikacji znajduje się na jej stronie w serwisie Github.
+";
+MessageBox.Show(this, message, title);
 }
 }
 }

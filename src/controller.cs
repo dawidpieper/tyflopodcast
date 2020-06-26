@@ -330,5 +330,9 @@ p.name=location;
 PodcastSelected(p, location);
 }
 }
+
+public void ShowURL(string url) {
+System.Diagnostics.Process.Start(url);
+}
 }
 }
