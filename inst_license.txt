@@ -1,0 +1,10 @@
+Tyflopodcast 1.0
+Copyright (©) 2020 Dawid Pieper
+
+Program "Tyflopodcast" (będący klientem umożliwiającym dostęp do zasobów portalu tyflopodcast.net prowadzonego przez Fundację Instytut Rozwoju Regionalnego) jest wolnym oprogramowaniem.
+Dozwala się jego dalsze rozprowadzanie lub modyfikację  na warunkach licencji GNU General Public License V3, wydanej przez Free Software Foundation.
+Kod źródłowy aplikacji znajduje się na jej stronie w serwisie Github:
+https://github.com/dawidpieper/tyflopodcast
+
+Uwaga!
+Wszystkie nagrania zamieszczone na stronie tyflopodcast.net są publikowane na licencji CreativeCommons - Uznanie autorstwa 3.0 Polska.

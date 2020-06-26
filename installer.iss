@@ -1,8 +1,8 @@
 [Setup]
 AppId={{Ca8D3121-34E1-4A99-9188-7E441CDA0DD0}
 AppName=Tyflopodcast
-AppVersion=0.6
-AppVerName=Tyflopodcast 0.6
+AppVersion=1.0
+AppVerName=Tyflopodcast 1.0
 AppPublisher=Dawid Pieper
 AppPublisherURL=https://elten-net.eu
 AppSupportURL=https://github.com/dawidpieper/tyflopodcast/issues
@@ -15,6 +15,7 @@ OutputBaseFilename=tyflopodcast_setup
 Compression=lzma2/max
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
+LicenseFile=inst_license.txt
 
 [Languages]
 Name: "pl"; MessagesFile: "compiler:Languages\Polish.isl"
