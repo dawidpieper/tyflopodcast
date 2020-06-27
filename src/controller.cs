@@ -99,8 +99,9 @@ l.SetStatus("Buforowanie...");
 long length = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_SIZE);
 long prebuffered = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
 long needed = (long)(length*position/GetDuration());
-Task.Factory.StartNew(()=> {
+Task.Factory.StartNew(async ()=> {
 do {
+await Task.Delay(250);
 long downloaded = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
 int p = (int)((100*(downloaded-prebuffered)/(needed-prebuffered)));
 if(p<100) l.SetPercentage(p);
@@ -277,18 +278,14 @@ if(MessageBox.Show("Czy chcesz zaktualizować listę dostępnych podcastów?", "
 downloadRemote=false;
 if(downloadRemote) {
 int totalPages=-1, leftPages=-1;
-Task.Factory.StartNew(()=> {
-podcasts = Podcasts.FetchPodcasts(ref leftPages, ref totalPages, reset);
-l.SetStatus("Czyszczenie...");
-Podcasts.CleanUp();
-cancelled = false;
-l.Close();
-});
-Task.Factory.StartNew(()=> {
+CancellationTokenSource cts=new CancellationTokenSource();
+CancellationToken ct = cts.Token;
+Task.Factory.StartNew(async ()=> {
 l.SetStatus("Łączenie...");
 bool s=false;
 int p=-1;
 for(;;) {
+await Task.Delay(250);
 if(!s && totalPages!=-1) {
 s=true;
 l.SetStatus("Pobieranie informacji o bazie podcastów...");
@@ -300,9 +297,18 @@ int pr = (int)((double)(totalPages-leftPages)/totalPages*100.0);
 l.SetPercentage(pr);
 if(leftPages==0) break;
 }
+if(ct.IsCancellationRequested) return;
 }
+}, ct);
+Task.Factory.StartNew(()=> {
+podcasts = Podcasts.FetchPodcasts(ref leftPages, ref totalPages, reset);
+l.SetStatus("Czyszczenie...");
+Podcasts.CleanUp();
+cancelled = false;
+l.Close();
 });
 l.ShowDialog(wnd);
+cts.Cancel();
 if(cancelled || podcasts==null) return;//Environment.Exit(0);
 }
 wnd.Clear();
