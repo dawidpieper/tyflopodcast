@@ -50,6 +50,7 @@ public static List<Category> categories;
 public const String url = "http://tyflopodcast.net";
 public const String jsonurl = "http://tyflopodcast.net/wp-json/wp/v2";
 public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
+public const string versionurl = "https://raw.githubusercontent.com/dawidpieper/tyflopodcast/master/version.json";
 
 private static HttpClient apiClient;
 
@@ -352,6 +353,19 @@ var json = response.Content.ReadAsStringAsync().Result;
 dynamic j = JsonConvert.DeserializeObject(json);
 if(j.available==true) return (true, j.text);
 else return (false, null);
+} catch {
+return (false, null);
+}
+}
+
+public static (bool, string) CheckForUpdates() {
+try {
+if(apiClient==null) Init();
+String u=versionurl;
+var response = apiClient.GetAsync(u).Result;
+var json = response.Content.ReadAsStringAsync().Result;
+dynamic j = JsonConvert.DeserializeObject(json);
+return (j.lastVersion!=Program.version, j.lastVersion);
 } catch {
 return (false, null);
 }

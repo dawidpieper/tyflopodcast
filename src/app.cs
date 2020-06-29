@@ -17,7 +17,7 @@ using Un4seen.Bass.AddOn.Fx;
 namespace Tyflopodcast {
 
 public class Program {
-public static string version = "1.0.1";
+public static string version = "1.1";
 
 private static TPWindow wnd;
 

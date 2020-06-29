@@ -369,5 +369,14 @@ wnd_program.ShowDialog(wnd);
 } else
 MessageBox.Show("W tej chwili ramówka nie jest dostępna.", "Ramówka niedostępna", MessageBoxButtons.OK, MessageBoxIcon.Error);
 }
+
+public void CheckForUpdates(bool confirm=false) {
+(bool available, string text) = Podcasts.CheckForUpdates();
+if(available) {
+if(MessageBox.Show("Dostępna jest nowa wersja programu. Czy chcesz przejść teraz do strony pobierania?", "Dostępna aktualizacja", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+ShowURL("https://github.com/dawidpieper/tyflopodcast/releases");
+} else if(confirm)
+MessageBox.Show("Używasz najnowszej wersji programu.", "Nie znaleziono dostępnych aktualizacji", MessageBoxButtons.OK, MessageBoxIcon.Information);
+}
 }
 }

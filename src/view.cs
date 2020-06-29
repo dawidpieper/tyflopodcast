@@ -115,11 +115,12 @@ item_tyflopodcast.MenuItems.Add("Tyflo&radio", (sender, e) => controller.RadioSe
 item_tyflopodcast.MenuItems.Add("Pokaż r&amówke Tyfloradia", (sender, e) => controller.ShowRadioProgram());
 item_tyflopodcast.MenuItems.Add("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()));
 item_tyflopodcast.MenuItems.Add("&Odbuduj bazę podcastów", (sender, e) => controller.UpdateDatabase(true));
-MenuItem item_help = new MenuItem("Pomo&c");
+MenuItem item_help = new MenuItem("P&omoc");
 this.Menu.MenuItems.Add(item_help);
 item_help.MenuItems.Add("Strona Internetowa &tyflopodcast.net", (sender, e) => controller.ShowURL("http://tyflopodcast.net"));
 item_help.MenuItems.Add("Strona Internetowa tej &aplikacji", (sender, e) => controller.ShowURL("https://github.com/dawidpieper/tyflopodcast"));
 item_help.MenuItems.Add("&O programie", (sender, e) => AppAbout());
+item_help.MenuItems.Add("Sprawdź dostępność a&ktualizacji", (sender, e) => {controller.CheckForUpdates(true);});
 
 ContextMenu ctx_podcasts = new ContextMenu();
 foreach(MenuItem mi in item_podcast.MenuItems)
