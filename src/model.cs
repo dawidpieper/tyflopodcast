@@ -49,6 +49,7 @@ public static List<Category> categories;
 
 public const String url = "http://tyflopodcast.net";
 public const String jsonurl = "http://tyflopodcast.net/wp-json/wp/v2";
+public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
 
 private static HttpClient apiClient;
 
@@ -306,6 +307,40 @@ foreach(Podcast p in localPodcasts)
 if(ids.Contains(p.id)) pd.Add(p);
 podcasts = pd.ToArray();
 return true;
+}
+
+public static (bool, string) GetRadioContactInfo() {
+try {
+if(apiClient==null) Init();
+String u=contacturl+"?ac=current";
+var response = apiClient.GetAsync(u).Result;
+var json = response.Content.ReadAsStringAsync().Result;
+dynamic j = JsonConvert.DeserializeObject(json);
+if(j.available==true) return (true, j.title);
+else return (false, null);
+} catch {
+return (false, null);
+}
+}
+
+public static (bool, string) SendRadioContact(string name, string message) {
+//try {
+if(apiClient==null) Init();
+String u=contacturl+"?ac=add";
+var jd = new Dictionary<string, string> { {"author", name}, {"comment", message} };
+var jdata = JsonConvert.SerializeObject(jd);
+var data = new StringContent(jdata, Encoding.UTF8, "application/json");
+data.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+var response = apiClient.PostAsync(u, data).Result;
+var json = response.Content.ReadAsStringAsync().Result;
+dynamic j = JsonConvert.DeserializeObject(json);
+if(j.ContainsKey("error"))
+return (false, j.error);
+else
+return (true, null);
+//} catch {
+//return (false, "Nie udało się połączyć z serwerem");
+//}
 }
 }
 }

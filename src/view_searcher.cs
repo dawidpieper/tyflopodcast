@@ -25,7 +25,7 @@ controller=tcontroller;
 
 this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
-this.Size = new Size(240,320);
+this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = "Przeszukaj Tyflopodcast";
 

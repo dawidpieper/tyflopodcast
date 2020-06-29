@@ -29,6 +29,7 @@ private TPWindow wnd=null;
 private PlayerWindow wnd_player=null;
 private RadioWindow wnd_radio=null;
 private CommentsWindow wnd_comments;
+private ContactRadioWindow wnd_contact;
 private System.Timers.Timer tm_audioposition=null;
 
 private string[] args;
@@ -339,6 +340,24 @@ PodcastSelected(p, location);
 
 public void ShowURL(string url) {
 System.Diagnostics.Process.Start(url);
+}
+
+public void ContactRadio() {
+(bool available, string title) = Podcasts.GetRadioContactInfo();
+if(available) {
+wnd_contact = new ContactRadioWindow(this, title);
+wnd_contact.ShowDialog(wnd);
+} else
+MessageBox.Show("W tej chwili możliwość kontaktu jest wyłączona, możliwe, że nie trwa teraz żadna audycja interaktywna lub prowadzący nie umożliwił jeszcze komunikacji.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+}
+
+public void SendRadioContact(string name, string message) {
+(bool suc, string error) = Podcasts.SendRadioContact(name, message);
+if(suc) {
+wnd_contact.Close();
+wnd_contact=null;
+} else
+MessageBox.Show(error, "Wysłanie wiadomości nie powiodło się", MessageBoxButtons.OK, MessageBoxIcon.Error);
 }
 }
 }

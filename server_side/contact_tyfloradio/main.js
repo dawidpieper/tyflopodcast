@@ -1,9 +1,3 @@
-/*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
-*/
-
 function notify(text) {
 var notification = document.createElement('p');
 notification.setAttribute('role', 'alert');

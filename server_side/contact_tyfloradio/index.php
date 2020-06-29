@@ -1,9 +1,4 @@
 <?php
-/*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
-*/
 require("functions.php");
 ?>
 

@@ -1,13 +1,8 @@
 <?php
-/*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
-*/
 
 define("TP_FILENAME", "._tp.dat");
 define("TP_SCHEDULE_FILENAME", "._tp_schedule.dat");
-define("PASSWORD", "SuperSecretAdminPassword");
+define("PASSWORD", "SomePassword");
 define("TP_COOKIENAME", "tp_session");
 define("TP_COMMENTS_PER_IP_HOURLY", 45);
 

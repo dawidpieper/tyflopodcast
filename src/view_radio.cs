@@ -15,7 +15,7 @@ private Controller controller;
 
 private Label lb_volume;
 private TyfloTrackBar tb_volume;
-private Button btn_play, btn_close;
+private Button btn_play, btn_contact, btn_close;
 
 private string name=null;
 
@@ -52,14 +52,21 @@ tb_volume.KeyDown += TBKeyDown;
 btn_play = new Button();
 btn_play.Text = "Play/Pauza";
 btn_play.Size = new Size(100, 50);
-btn_play.Location = new Point(20, 170);
+btn_play.Location = new Point(20, 20);
 btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
+
+btn_contact = new Button();
+btn_contact.Text = "Napisz do Tyfloradia";
+btn_contact.Size = new Size(100, 50);
+btn_contact.Location = new Point(20, 90);
+btn_contact.Click += (sender, e) => controller.ContactRadio();
+this.Controls.Add(btn_contact);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
 btn_close.Size = new Size(100, 50);
-btn_close.Location = new Point(180, 170);
+btn_close.Location = new Point(180, 160);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 

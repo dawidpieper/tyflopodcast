@@ -1,9 +1,3 @@
-/*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
-*/
-
 var commentsCount=-1;
 function TPDOMFetchedComments(rsp) {
 if(rsp['error']!=undefined) return;
@@ -19,6 +13,7 @@ var p = document.createElement("p");
 var h = document.createElement("h2");
 var link = document.createElement("a");
 h.appendChild(document.createTextNode(c['author']));
+p.style="white-space: pre;";
 p.appendChild(document.createTextNode(c['content']));
 p.appendChild(document.createElement("br"));
 var date = new Date(c['timestamp'] * 1000);

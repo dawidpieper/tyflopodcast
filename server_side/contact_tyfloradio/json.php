@@ -17,17 +17,34 @@ $_POST[$k]=$v;
 
 $j=array();
 switch($_GET['ac']) {
+case 'current':
+$title = TPGetTitle();
+if($title==null) $j['available']=false;
+else {
+$j['available']=true;
+$j['title']=$title;
+}
+break;
 case 'add':
 if(isAdmin() || TPIsIPAllowed($_SERVER['REMOTE_ADDR'])) {
 if(TPAddComment($_POST['author'], $_POST['comment'])==false)
 $j['error']="Nie udało się dodać komentarza.";
+else {
+$j['author']=$_POST['author'];
+$j['comment']=$_POST['comment'];
+}
 } else
-$j['error']="Umieściłeś ostatnio zbyt wiele komentarzy. Spróbuj ponownie za kilkadziesiąt minut.";
+$j['error']="Umieszczono ostatnio zbyt wiele komentarzy. Spróbuj ponownie za kilkadziesiąt minut.";
 break;
 case 'del':
 if(isAdmin()) {
+$comm = TPGetComments()[$_POST['id']];
 if(TPDeleteComment($_POST['id'])==false)
 $j['error']="Nie udało się dodać komentarza.";
+else {
+$j['author']=$comm->author;
+$j['comment'] = $comm->comment;
+}
 } else
 $j['error'] = "Wymagane jest uwierzytelnienie przed wykonaniem tej operacji.";
 break;
@@ -35,13 +52,18 @@ case 'create' :
 if(isAdmin()) {
 if(TPCreateEmpty($_POST['title'])==false)
 $j['error']="Nie udało się utworzyć bazy danych.";
+else
+$j['title']=$_POST['title'];
 } else
 $j['error'] = "Wymagane jest uwierzytelnienie przed wykonaniem tej operacji.";
 break;
 case 'dispose':
 if(isAdmin()) {
+$title = TPGetTitle();
 if(TPDelete()==false)
 $j['error']="Nie udało się usunąć bazy danych.";
+else
+$j['title']=$title;
 } else
 $j['error'] = "Wymagane jest uwierzytelnienie przed wykonaniem tej operacji.";
 break;
@@ -57,6 +79,11 @@ case 'setschedule':
 if(isAdmin()) {
 if(TPSetSchedule(strtotime($_POST['timefrom']), strtotime($_POST['timeto']), $_POST['text'])==false)
 $j['error']="Nie udało się zaktualizować ramówki.";
+else {
+$j['timefrom'] = strtotime($_POST['timefrom']);
+$j['timeto'] = strtotime($_POST['timeto']);
+$j['text'] = $_POST['text'];
+}
 } else
 $j['error'] = "Wymagane jest uwierzytelnienie przed wykonaniem tej operacji.";
 break;
@@ -65,6 +92,5 @@ $j['error'] = "Nie rozpoznano polecenia";
 break;
 }
 header("Content-Type: application/json");
-http_response_code($j['status']);
-echo json_encode($j);
+echo json_encode((Object)$j);
 ?>
