@@ -1,1 +1,7 @@
 theme: jekyll-theme-cayman
+
+title: 'Tyflopodcast - klient serwisu tyflopodcast.net dla komputerów PC'
+email: dawidpieper@o2.pl
+description: Program umożliwiający dostęp do zasobów serwisu tyflopodcast.net oraz Tyfloradia
+github:
+  is_project_page: false
