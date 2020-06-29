@@ -112,6 +112,7 @@ item_podcast.MenuItems.Add("Pok&aż pobrane", (sender, e) => controller.ShowDown
 MenuItem item_tyflopodcast = new MenuItem("&tyflopodcast.net");
 this.Menu.MenuItems.Add(item_tyflopodcast);
 item_tyflopodcast.MenuItems.Add("Tyflo&radio", (sender, e) => controller.RadioSelected());
+item_tyflopodcast.MenuItems.Add("Pokaż r&amówke Tyfloradia", (sender, e) => controller.ShowRadioProgram());
 item_tyflopodcast.MenuItems.Add("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()));
 item_tyflopodcast.MenuItems.Add("&Odbuduj bazę podcastów", (sender, e) => controller.UpdateDatabase(true));
 MenuItem item_help = new MenuItem("Pomo&c");

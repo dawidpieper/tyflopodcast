@@ -342,5 +342,19 @@ return (true, null);
 //return (false, "Nie udało się połączyć z serwerem");
 //}
 }
+
+public static (bool, string) GetRadioProgram() {
+try {
+if(apiClient==null) Init();
+String u=contacturl+"?ac=schedule";
+var response = apiClient.GetAsync(u).Result;
+var json = response.Content.ReadAsStringAsync().Result;
+dynamic j = JsonConvert.DeserializeObject(json);
+if(j.available==true) return (true, j.text);
+else return (false, null);
+} catch {
+return (false, null);
+}
+}
 }
 }

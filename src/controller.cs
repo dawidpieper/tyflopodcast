@@ -30,6 +30,7 @@ private PlayerWindow wnd_player=null;
 private RadioWindow wnd_radio=null;
 private CommentsWindow wnd_comments;
 private ContactRadioWindow wnd_contact;
+private RadioProgramWindow wnd_program;
 private System.Timers.Timer tm_audioposition=null;
 
 private string[] args;
@@ -358,6 +359,15 @@ wnd_contact.Close();
 wnd_contact=null;
 } else
 MessageBox.Show(error, "Wysłanie wiadomości nie powiodło się", MessageBoxButtons.OK, MessageBoxIcon.Error);
+}
+
+public void ShowRadioProgram() {
+(bool available, string text) = Podcasts.GetRadioProgram();
+if(available) {
+wnd_program = new RadioProgramWindow(this, text);
+wnd_program.ShowDialog(wnd);
+} else
+MessageBox.Show("W tej chwili ramówka nie jest dostępna.", "Ramówka niedostępna", MessageBoxButtons.OK, MessageBoxIcon.Error);
 }
 }
 }
