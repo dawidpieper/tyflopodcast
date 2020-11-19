@@ -51,8 +51,7 @@ public static List<Category> categories;
 
 public const String url = "http://tyflopodcast.net";
 public const String jsonurl = "http://tyflopodcast.net/wp-json/wp/v2";
-//public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
-public const String contacturl = "https://elten-net.eu/tp_api/json.php";
+public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
 public const string versionurl = "https://raw.githubusercontent.com/dawidpieper/tyflopodcast/master/version.json";
 
 private static HttpClient apiClient;
