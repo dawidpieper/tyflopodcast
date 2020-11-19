@@ -31,7 +31,8 @@ public PlayerWindow(Podcast tpodcast, Controller tcontroller) {
 podcast=tpodcast;
 controller=tcontroller;
 
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(480, 360);
 this.StartPosition = FormStartPosition.CenterScreen;

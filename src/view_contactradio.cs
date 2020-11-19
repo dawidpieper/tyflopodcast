@@ -22,7 +22,8 @@ private Controller controller;
 public ContactRadioWindow(Controller tcontroller, string title) {
 controller=tcontroller;
 
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;

@@ -23,7 +23,8 @@ private Button btn_close;
 public RadioProgramWindow(Controller tcontroller, string program) {
 controller=tcontroller;
 
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;

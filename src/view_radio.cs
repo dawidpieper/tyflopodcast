@@ -24,7 +24,8 @@ private string name=null;
 public RadioWindow(Controller tcontroller) {
 controller=tcontroller;
 
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;
@@ -32,13 +33,13 @@ UpdateWindowCaption();
 
 lb_volume = new Label();
 lb_volume.Text = "Głośność";
-lb_volume.Size = new Size(150,50);
+lb_volume.Size = new Size(100, 50);
 lb_volume.Location = new Point(20, 20);
 this.Controls.Add(lb_volume);
 
 tb_volume = new TyfloTrackBar();
-tb_volume.Size = new Size(240, 50);
-tb_volume.Location = new Point(20, 90);
+tb_volume.Size = new Size(160, 50);
+tb_volume.Location = new Point(140, 20);
 tb_volume.Minimum=0;
 tb_volume.Maximum=100;
 tb_volume.TickFrequency = 5;
@@ -53,22 +54,22 @@ tb_volume.KeyDown += TBKeyDown;
 
 btn_play = new Button();
 btn_play.Text = "Play/Pauza";
-btn_play.Size = new Size(100, 50);
-btn_play.Location = new Point(20, 20);
+btn_play.Size = new Size(70, 120);
+btn_play.Location = new Point(20, 100);
 btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
 
 btn_contact = new Button();
 btn_contact.Text = "Napisz lub zadzwoń do Tyfloradia";
-btn_contact.Size = new Size(100, 50);
-btn_contact.Location = new Point(20, 90);
+btn_contact.Size = new Size(70, 120);
+btn_contact.Location = new Point(110, 100);
 btn_contact.Click += (sender, e) => controller.ContactRadio();
 this.Controls.Add(btn_contact);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(100, 50);
-btn_close.Location = new Point(180, 160);
+btn_close.Size = new Size(70, 120);
+btn_close.Location = new Point(200, 100);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 
@@ -101,7 +102,7 @@ this.Text=sb.ToString();
 
 public void ShowContactRadioContext(bool callAvailable) {
 ContextMenu cm = new ContextMenu();
-cm.MenuItems.Add("&Napisz", (sender, e) => {controller.ContactRadio();});
+cm.MenuItems.Add("&Napisz", (sender, e) => {controller.ContactRadioText();});
 if(callAvailable) {
 MenuItem item_call = new MenuItem("&Zadzwoń");
 cm.MenuItems.Add(item_call);
@@ -115,7 +116,7 @@ item_call.MenuItems.Add("Przez &telefon", (sender, e) => {
 controller.ContactRadioPhone();
 });
 }
-cm.Show(btn_contact, new Point(0,0));
+cm.Show(this, new Point(0,0));
 }
 
 }

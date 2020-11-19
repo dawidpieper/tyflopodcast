@@ -25,7 +25,8 @@ public SearcherWindow(Podcast[] tpodcasts, Controller tcontroller) {
 podcasts=tpodcasts;
 controller=tcontroller;
 
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;

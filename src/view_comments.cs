@@ -28,7 +28,8 @@ podcast=tpodcast;
 controller=tcontroller;
 comments=tcomments;
 
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(480, 360);
 this.StartPosition = FormStartPosition.CenterScreen;

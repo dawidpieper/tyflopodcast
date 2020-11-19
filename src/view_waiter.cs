@@ -17,7 +17,8 @@ private Label lb_status;
 private ProgressBar pb_percentage;
 private Button btn_cancel;
 public LoadingWindow(string text="Ładowanie...") {
-this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+this.FormBorderStyle = FormBorderStyle.FixedDialog ;
+this.ShowInTaskbar=false;
 
 this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;
