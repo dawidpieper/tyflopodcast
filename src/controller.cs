@@ -1,7 +1,9 @@
 /*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
+A part of Tyflopodcast - tyflopodcast.net client.
+Copyright (C) 2020 Dawid Pieper
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 */
 
 using System;
@@ -10,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
@@ -18,6 +21,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using Microsoft.Win32;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Fx;
 
@@ -30,6 +34,7 @@ private PlayerWindow wnd_player=null;
 private RadioWindow wnd_radio=null;
 private CommentsWindow wnd_comments;
 private ContactRadioWindow wnd_contact;
+private ContactRadioPhoneWindow wnd_contactphone;
 private RadioProgramWindow wnd_program;
 private System.Timers.Timer tm_audioposition=null;
 
@@ -206,25 +211,7 @@ return sb.ToString();
 public void DownloadPodcast(Podcast podcast) {
 string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast\\downloads";
 System.IO.Directory.CreateDirectory(datadir);
-var l = new LoadingWindow("Pobieranie podcastu "+podcast.name);
-l.SetStatus("Inicjowanie...");
-bool cancelled = true;
-Thread dwnThread = new Thread(() => {
-using (var client = new WebClient ()) {
-client.DownloadProgressChanged += (sender, e) => {
-l.SetPercentage(e.ProgressPercentage);
-l.SetStatus($"Pobieranie: {e.BytesReceived/1048576} / {e.TotalBytesToReceive/1048576} MB");
-};
-client.DownloadFileCompleted += (sender, e) => {
-cancelled=false;
-l.Close();
-};
-client.DownloadFileAsync(new Uri("http://tyflopodcast.net/pobierz.php?id="+podcast.id.ToString()+"&plik=0"), datadir+"\\"+MakeValidFileName(podcast.name)+".mp3");
-}
-});
-dwnThread.Start();
-l.ShowDialog(wnd);
-if(cancelled) dwnThread.Abort();
+OpenDownloader("http://tyflopodcast.net/pobierz.php?id="+podcast.id.ToString()+"&plik=0", datadir+"\\"+MakeValidFileName(podcast.name)+".mp3", "Pobieranie podcastu "+podcast.name);
 }
 
 public void ShowDownloads() {
@@ -344,12 +331,53 @@ System.Diagnostics.Process.Start(url);
 }
 
 public void ContactRadio() {
-(bool available, string title) = Podcasts.GetRadioContactInfo();
+(bool available, string title, string meeting) = Podcasts.GetRadioContactInfo();
+if(available) {
+wnd_radio.ShowContactRadioContext(meeting!=null);
+} else
+MessageBox.Show("W tej chwili możliwość kontaktu jest wyłączona, możliwe, że nie trwa teraz żadna audycja interaktywna lub prowadzący nie umożliwił jeszcze komunikacji.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+}
+
+public void ContactRadioText() {
+(bool available, string title, string meeting) = Podcasts.GetRadioContactInfo();
 if(available) {
 wnd_contact = new ContactRadioWindow(this, title);
 wnd_contact.ShowDialog(wnd);
 } else
 MessageBox.Show("W tej chwili możliwość kontaktu jest wyłączona, możliwe, że nie trwa teraz żadna audycja interaktywna lub prowadzący nie umożliwił jeszcze komunikacji.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+}
+
+public void ContactRadioZoom() {
+(bool available, string title, string meeting) = Podcasts.GetRadioContactInfo();
+if(available && meeting!=null) {
+RegistryKey key = Registry.ClassesRoot.OpenSubKey("zoommtg");
+if(key==null) {
+if(MessageBox.Show("Aplikacja Zoom nie została zainstalowana na tym komputerze. Czy chcesz teraz przejść do jej strony pobierania?", "Nie znaleziono aplikacji Zoom", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+ShowURL("https://zoom.us/download");
+}
+else {
+ShowURL("zoommtg://zoom.us/join?action=join&confno="+meeting.ToString());
+}
+} else
+MessageBox.Show("W tej chwili opcja kontaktu głosowego nie jest dostępna.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+}
+
+public void ContactRadioBrowser() {
+(bool available, string title, string meeting) = Podcasts.GetRadioContactInfo();
+if(available && meeting!=null)
+ShowURL("https://zoom.us/wc/join/"+meeting.ToString());
+else
+MessageBox.Show("W tej chwili opcja kontaktu głosowego nie jest dostępna.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+}
+
+public void ContactRadioPhone() {
+(bool available, string title, string meeting) = Podcasts.GetRadioContactInfo();
+if(available && meeting!=null) {
+wnd_contactphone = new ContactRadioPhoneWindow(this, meeting);
+wnd_contactphone.ShowDialog(wnd_radio);
+}
+else
+MessageBox.Show("W tej chwili opcja kontaktu głosowego nie jest dostępna.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
 }
 
 public void SendRadioContact(string name, string message) {
@@ -377,6 +405,29 @@ if(MessageBox.Show("Dostępna jest nowa wersja programu. Czy chcesz przejść te
 ShowURL("https://github.com/dawidpieper/tyflopodcast/releases");
 } else if(confirm)
 MessageBox.Show("Używasz najnowszej wersji programu.", "Nie znaleziono dostępnych aktualizacji", MessageBoxButtons.OK, MessageBoxIcon.Information);
+}
+
+private bool OpenDownloader(string source, string destination, string label="Pobieranie") {
+var l = new LoadingWindow(label);
+l.SetStatus("Inicjowanie...");
+bool cancelled = true;
+Thread dwnThread = new Thread(() => {
+using (var client = new WebClient ()) {
+client.DownloadProgressChanged += (sender, e) => {
+l.SetPercentage(e.ProgressPercentage);
+l.SetStatus($"Pobieranie: {e.BytesReceived/1048576} / {e.TotalBytesToReceive/1048576} MB");
+};
+client.DownloadFileCompleted += (sender, e) => {
+cancelled=false;
+l.Close();
+};
+client.DownloadFileAsync(new Uri(source), destination);
+}
+});
+dwnThread.Start();
+l.ShowDialog(wnd);
+if(cancelled) dwnThread.Abort();
+return !cancelled;
 }
 }
 }

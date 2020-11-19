@@ -13,35 +13,47 @@ using System.Text;
 using System.Linq;
 
 namespace Tyflopodcast {
-public class RadioProgramWindow : Form {
+public class ContactRadioPhoneWindow : Form {
 private Controller controller;
 
-private Label lb_program;
-private TextBox edt_program;
+private Label lb_phone, lb_meeting;
+private TextBox edt_phone, edt_meeting;
 private Button btn_close;
 
-public RadioProgramWindow(Controller tcontroller, string program) {
+public ContactRadioPhoneWindow(Controller tcontroller, string meeting) {
 controller=tcontroller;
 
 this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
 this.Size = new Size(320, 240);
 this.StartPosition = FormStartPosition.CenterScreen;
-this.Text = "Aktualna ramówka Tyfloradia - Tyflopodcast";
+this.Text = "Kontakt telefoniczny z Tyfloradiem - Tyflopodcast";
 
-lb_program = new Label();
-lb_program.Text = "Ramówka";
-lb_program.Size = new Size(200, 50);
-lb_program.Location = new Point(60, 20);
-this.Controls.Add(lb_program);
+lb_phone = new Label();
+lb_phone.Text = "Zadzwoń pod ten numer";
+lb_phone.Size = new Size(100, 100);
+lb_phone.Location = new Point(20, 20);
+this.Controls.Add(lb_phone);
 
-edt_program = new TextBox();
-edt_program.Size = new Size(280, 100);
-edt_program.Location = new Point(20, 70);
-edt_program.ReadOnly = true;
-edt_program.Multiline = true;
-edt_program.Text=program.Replace("\n", "\r\n");
-this.Controls.Add(edt_program);
+edt_phone = new TextBox();
+edt_phone.Size = new Size(160, 100);
+edt_phone.Location = new Point(140, 20);
+edt_phone.ReadOnly = true;
+edt_phone.Text="+48 22 398 73 56";
+this.Controls.Add(edt_phone);
+
+lb_meeting = new Label();
+lb_meeting.Text = "I wprowadź ten numer pokoju, potwierdzając wybór krzyżykiem";
+lb_meeting.Size = new Size(100, 50);
+lb_meeting.Location = new Point(20, 120);
+this.Controls.Add(lb_meeting);
+
+edt_meeting = new TextBox();
+edt_meeting.Size = new Size(160, 100);
+edt_meeting.Location = new Point(140, 120);
+edt_meeting.ReadOnly = true;
+edt_meeting.Text=meeting;
+this.Controls.Add(edt_meeting);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";

@@ -1,7 +1,9 @@
 /*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
+A part of Tyflopodcast - tyflopodcast.net client.
+Copyright (C) 2020 Dawid Pieper
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 */
 
 using System;
@@ -57,7 +59,7 @@ btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
 
 btn_contact = new Button();
-btn_contact.Text = "Napisz do Tyfloradia";
+btn_contact.Text = "Napisz lub zadzwoń do Tyfloradia";
 btn_contact.Size = new Size(100, 50);
 btn_contact.Location = new Point(20, 90);
 btn_contact.Click += (sender, e) => controller.ContactRadio();
@@ -96,5 +98,25 @@ sb.Append(" - ");
 sb.Append("Tyfloradio - Tyflopodcast");
 this.Text=sb.ToString();
 }
+
+public void ShowContactRadioContext(bool callAvailable) {
+ContextMenu cm = new ContextMenu();
+cm.MenuItems.Add("&Napisz", (sender, e) => {controller.ContactRadio();});
+if(callAvailable) {
+MenuItem item_call = new MenuItem("&Zadzwoń");
+cm.MenuItems.Add(item_call);
+item_call.MenuItems.Add("Przez &aplikację Zoom", (sender, e) => {
+controller.ContactRadioZoom();
+});
+item_call.MenuItems.Add("Przez przeglądarkę &Internetową", (sender, e) => {
+controller.ContactRadioBrowser();
+});
+item_call.MenuItems.Add("Przez &telefon", (sender, e) => {
+controller.ContactRadioPhone();
+});
+}
+cm.Show(btn_contact, new Point(0,0));
+}
+
 }
 }

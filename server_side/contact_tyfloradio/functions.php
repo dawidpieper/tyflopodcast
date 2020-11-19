@@ -1,10 +1,18 @@
 <?php
+/*
+A part of Tyflopodcast - tyflopodcast.net client.
+Copyright (C) 2020 Dawid Pieper
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*/
 
 define("TP_FILENAME", "._tp.dat");
 define("TP_SCHEDULE_FILENAME", "._tp_schedule.dat");
 define("PASSWORD", "SomePassword");
 define("TP_COOKIENAME", "tp_session");
 define("TP_COMMENTS_PER_IP_HOURLY", 45);
+define("TP_ZOOM_MEETING_ID", 513177275);
 
 $db = NULL;
 $schedule = NULL;
@@ -191,4 +199,8 @@ foreach($db->comments as $c)
 if($c->timestamp>time()-3600 && $c->ip == $ip) ++$cnt;
 if($cnt>=TP_COMMENTS_PER_IP_HOURLY) return false;
 else return true;
+}
+
+function TPGetZoomMeetingId() {
+return TP_ZOOM_MEETING_ID;
 }

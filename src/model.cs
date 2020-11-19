@@ -1,7 +1,9 @@
 /*
-tyflopodcast.net client
-Copyright Dawid Pieper
-License: General Public License (GPLv3)
+A part of Tyflopodcast - tyflopodcast.net client.
+Copyright (C) 2020 Dawid Pieper
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 */
 
 using System;
@@ -49,7 +51,8 @@ public static List<Category> categories;
 
 public const String url = "http://tyflopodcast.net";
 public const String jsonurl = "http://tyflopodcast.net/wp-json/wp/v2";
-public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
+//public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
+public const String contacturl = "https://elten-net.eu/tp_api/json.php";
 public const string versionurl = "https://raw.githubusercontent.com/dawidpieper/tyflopodcast/master/version.json";
 
 private static HttpClient apiClient;
@@ -310,17 +313,17 @@ podcasts = pd.ToArray();
 return true;
 }
 
-public static (bool, string) GetRadioContactInfo() {
+public static (bool, string, string) GetRadioContactInfo() {
 try {
 if(apiClient==null) Init();
 String u=contacturl+"?ac=current";
 var response = apiClient.GetAsync(u).Result;
 var json = response.Content.ReadAsStringAsync().Result;
 dynamic j = JsonConvert.DeserializeObject(json);
-if(j.available==true) return (true, j.title);
-else return (false, null);
+if(j.available==true) return (true, j.title, j.zoom_meeting_id);
+else return (false, null, null);
 } catch {
-return (false, null);
+return (false, null, null);
 }
 }
 
