@@ -1,5 +1,5 @@
 @echo off
-SET ILMERGE_VERSION=3.0.40
+SET ILMERGE_VERSION=3.0.41
 SET ILMERGE_PATH=%USERPROFILE%\.nuget\packages\ilmerge\%ILMERGE_VERSION%\tools\net452
 SET INNOSETUP_PATH=C:\Program Files (x86)\Inno Setup 6
 SET SEVENZIP_PATH=C:\Program Files\7-Zip
