@@ -1,3 +1,4 @@
+using System.Windows.Forms;
 /*
 A part of Tyflopodcast - tyflopodcast.net client.
 Copyright (C) 2020 Dawid Pieper
@@ -371,6 +372,28 @@ return (j.lastVersion!=Program.version, j.lastVersion);
 } catch {
 return (false, null);
 }
+}
+
+public static bool WriteComment(Podcast podcast, string name, string mail, string url, string comment) {
+if(apiClient==null) Init();
+String u=jsonurl+"/comments";
+string payload = JsonConvert.SerializeObject(new {
+author_email = mail,
+author_name = name,
+author_url = url,
+author_user_agent = "Tyflopodcast Client",
+content = comment,
+post = podcast.id
+});
+var content = new StringContent(payload, Encoding.UTF8, "application/json");
+var response = apiClient.PostAsync(u, content).Result;
+var json = response.Content.ReadAsStringAsync().Result;
+//MessageBox.Show(json);
+dynamic j = JsonConvert.DeserializeObject(json);
+if(j.ContainsKey("error"))
+return false;
+else
+return true;
 }
 }
 }

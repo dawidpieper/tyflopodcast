@@ -33,6 +33,7 @@ private TPWindow wnd=null;
 private PlayerWindow wnd_player=null;
 private RadioWindow wnd_radio=null;
 private CommentsWindow wnd_comments;
+private CommentWriteWindow wnd_commentwrite;
 private ContactRadioWindow wnd_contact;
 private ContactRadioPhoneWindow wnd_contactphone;
 private RadioProgramWindow wnd_program;
@@ -428,6 +429,16 @@ dwnThread.Start();
 l.ShowDialog(wnd);
 if(cancelled) dwnThread.Abort();
 return !cancelled;
+}
+
+public void WriteComment(Podcast podcast) {
+wnd_commentwrite = new CommentWriteWindow(this, podcast);
+wnd_commentwrite.ShowDialog(wnd_comments);
+}
+
+public void PublishComment(Podcast podcast, string name, string mail, string url, string comment) {
+if(Podcasts.WriteComment(podcast, name, mail, url, comment))
+wnd_commentwrite.Close();
 }
 }
 }

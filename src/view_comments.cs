@@ -21,7 +21,7 @@ private Comment[] comments;
 private Label lb_comments, lb_comment;
 private ListBox lst_comments;
 private TextBox edt_comment;
-private Button btn_close;
+private Button btn_close, btn_write;
 
 public CommentsWindow(Podcast tpodcast, Comment[] tcomments, Controller tcontroller) {
 podcast=tpodcast;
@@ -61,10 +61,17 @@ this.Controls.Add(edt_comment);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(120, 40);
+btn_close.Size = new Size(60, 40);
 btn_close.Location = new Point(155, 300);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
+
+btn_write = new Button();
+btn_write.Text = "Napisz";
+btn_write.Size = new Size(60, 40);
+btn_write.Location = new Point(215, 300);
+btn_write.Click += (sender, e) => controller.WriteComment(podcast);
+this.Controls.Add(btn_write);
 
 lst_comments.SelectedIndexChanged += (sender, e) => {
 if(lst_comments.SelectedIndex<comments.Count()) ShowComment(comments[lst_comments.SelectedIndex]);
