@@ -1,6 +1,6 @@
 /*
 A part of Tyflopodcast - tyflopodcast.net client.
-Copyright (C) 2020 Dawid Pieper
+Copyright (C) 2020, 2021 Dawid Pieper
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
@@ -19,7 +19,7 @@ using Un4seen.Bass.AddOn.Fx;
 namespace Tyflopodcast {
 
 public class Program {
-public static string version = "1.1";
+public static string version = "1.2";
 
 private static TPWindow wnd;
 

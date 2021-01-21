@@ -1,6 +1,6 @@
 /*
 A part of Tyflopodcast - tyflopodcast.net client.
-Copyright (C) 2020 Dawid Pieper
+Copyright (C) 2020, 2021 Dawid Pieper
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
@@ -66,6 +66,8 @@ apiClient=null;
 
 public static void Init() {
 ServicePointManager.DefaultConnectionLimit = 6;
+ServicePointManager.Expect100Continue = true;
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 HttpClientHandler hch = new HttpClientHandler();
 hch.Proxy = null;
 hch.UseProxy = false;
@@ -362,16 +364,16 @@ return (false, null);
 }
 
 public static (bool, string) CheckForUpdates() {
-try {
+//try {
 if(apiClient==null) Init();
 String u=versionurl;
 var response = apiClient.GetAsync(u).Result;
 var json = response.Content.ReadAsStringAsync().Result;
 dynamic j = JsonConvert.DeserializeObject(json);
 return (j.lastVersion!=Program.version, j.lastVersion);
-} catch {
-return (false, null);
-}
+//} catch {
+//return (false, null);
+//}
 }
 
 public static bool WriteComment(string action, Dictionary<string, string> fields, string name, string mail, string url, string comment) {

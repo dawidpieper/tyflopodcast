@@ -1,6 +1,6 @@
 /*
 A part of Tyflopodcast - tyflopodcast.net client.
-Copyright (C) 2020 Dawid Pieper
+Copyright (C) 2020, 2021 Dawid Pieper
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3. 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
@@ -208,7 +208,7 @@ private void AppAbout() {
 string title = "Tyflopodcast wersja "+Program.version;
 string message = @"
 Klient portalu tyflopodcast.net.
-Copyright (©) 2020 Dawid Pieper
+Copyright (©) 2020, 2021 Dawid Pieper
 
 Niniejszy program jest wolnym oprogramowaniem.
 Dozwala się jego dalsze rozprowadzanie lub modyfikację  na warunkach licencji GNU General Public License V3, wydanej przez Free Software Foundation.
