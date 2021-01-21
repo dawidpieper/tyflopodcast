@@ -432,13 +432,19 @@ return !cancelled;
 }
 
 public void WriteComment(Podcast podcast) {
-wnd_commentwrite = new CommentWriteWindow(this, podcast);
+(string action, Dictionary<string,string> fields) = Podcasts.GetCommentsNonce(podcast);
+if(action==null) return;
+wnd_commentwrite = new CommentWriteWindow(this, podcast, action, fields);
 wnd_commentwrite.ShowDialog(wnd_comments);
 }
 
-public void PublishComment(Podcast podcast, string name, string mail, string url, string comment) {
-if(Podcasts.WriteComment(podcast, name, mail, url, comment))
+public void PublishComment(Podcast podcast, string action, Dictionary<string,string> fields, string name, string mail, string url, string comment) {
+if(Podcasts.WriteComment(action, fields, name, mail, url, comment))
 wnd_commentwrite.Close();
+Comment[] comments;
+if(Podcasts.GetPodcastComments(podcast.id, out comments) && wnd_comments!=null) {
+wnd_comments.SetComments(comments);
+}
 }
 }
 }

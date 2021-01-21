@@ -1,4 +1,3 @@
-using System.Windows.Forms;
 /*
 A part of Tyflopodcast - tyflopodcast.net client.
 Copyright (C) 2020 Dawid Pieper
@@ -21,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
+using HtmlAgilityPack;
 
 namespace Tyflopodcast {
 
@@ -374,26 +374,45 @@ return (false, null);
 }
 }
 
-public static bool WriteComment(Podcast podcast, string name, string mail, string url, string comment) {
+public static bool WriteComment(string action, Dictionary<string, string> fields, string name, string mail, string url, string comment) {
 if(apiClient==null) Init();
-String u=jsonurl+"/comments";
-string payload = JsonConvert.SerializeObject(new {
-author_email = mail,
-author_name = name,
-author_url = url,
-author_user_agent = "Tyflopodcast Client",
-content = comment,
-post = podcast.id
-});
-var content = new StringContent(payload, Encoding.UTF8, "application/json");
-var response = apiClient.PostAsync(u, content).Result;
-var json = response.Content.ReadAsStringAsync().Result;
-//MessageBox.Show(json);
-dynamic j = JsonConvert.DeserializeObject(json);
-if(j.ContainsKey("error"))
-return false;
-else
+var dict = new Dictionary<string,string>();
+dict["comment"]=comment;
+dict["author"]=name;
+dict["email"]=mail;
+dict["url"]=url;
+foreach(var field in fields)
+dict.Add(field.Key,field.Value);
+var response = apiClient.PostAsync(action, new FormUrlEncodedContent(dict)).Result;
+var body = response.Content.ReadAsStringAsync().Result;
 return true;
 }
+
+public static (string,Dictionary<string,string>) GetCommentsNonce(Podcast podcast) {
+try {
+if(apiClient==null) Init();
+String u=jsonurl+"/posts/"+podcast.id.ToString();
+var response = apiClient.GetAsync(u).Result;
+var json = response.Content.ReadAsStringAsync().Result;
+dynamic j = JsonConvert.DeserializeObject(json);
+string link=j.link;
+var pageResponse = apiClient.GetAsync(link).Result;
+var page = pageResponse.Content.ReadAsStringAsync().Result;
+var doc = new HtmlAgilityPack.HtmlDocument();
+doc.LoadHtml(page);
+var cmt = doc.GetElementbyId("commentform");
+string action=cmt.GetAttributeValue("action","");
+var fields = new Dictionary<string,string>();
+if(cmt==null) return (null,null);
+var nodes = cmt.Descendants("input");
+foreach(var node in nodes) {
+if(node.GetAttributeValue("type","").ToLower()=="hidden") fields[node.GetAttributeValue("name", "")]=node.GetAttributeValue("value","");
+}
+return (action,fields);
+} catch {
+return (null,null);
+}
+}
+
 }
 }

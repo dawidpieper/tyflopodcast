@@ -21,7 +21,8 @@ private Comment[] comments;
 private Label lb_comments, lb_comment;
 private ListBox lst_comments;
 private TextBox edt_comment;
-private Button btn_close, btn_write;
+private Button btn_close;
+private Button btn_write;
 
 public CommentsWindow(Podcast tpodcast, Comment[] tcomments, Controller tcontroller) {
 podcast=tpodcast;
