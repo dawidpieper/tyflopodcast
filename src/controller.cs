@@ -140,19 +140,7 @@ if(location==null)
 SetURL("http://tyflopodcast.net/pobierz.php?id="+p.id.ToString()+"&plik=0");
 else
 SetFile(location);
-AudioInfo ai = new AudioInfo(stream);
-wnd_player.SetName(ai.title);
-wnd_player.SetArtist(ai.artist);
-var chapters = new List<AudioInfo.Chapter>();
-foreach(AudioInfo.Chapter ch in ai.chapters) chapters.Add(ch);
-foreach(Bookmark b in Podcasts.GetPodcastBookmarks(p)) {
-var ch = new AudioInfo.Chapter();
-ch.name="Zakładka: "+b.name;
-ch.time=b.time;
-ch.userDefined=true;
-chapters.Add(ch);
-}
-wnd_player.SetChapters(chapters.ToArray());
+UpdateAudioInfo(p);
 Play();
 tm_audioposition = new System.Timers.Timer(250);
 tm_audioposition.AutoReset = true;
@@ -472,12 +460,30 @@ wnd_bookmarks.ShowDialog(wnd_player);
 public void AddBookmark(Podcast podcast, string name, double time) {
 Podcasts.AddBookmark(podcast, name, (float)time);
 wnd_bookmarks.UpdateBookmarks();
+UpdateAudioInfo(podcast);
 }
 
 public void DeleteBookmark(Podcast podcast, Bookmark bookmark) {
 if(bookmark.podcast!=podcast.id) return;
 Podcasts.DeleteBookmark(bookmark);
 wnd_bookmarks.UpdateBookmarks();
+UpdateAudioInfo(podcast);
+}
+
+private void UpdateAudioInfo(Podcast p) {
+AudioInfo ai = new AudioInfo(stream);
+wnd_player.SetName(ai.title);
+wnd_player.SetArtist(ai.artist);
+var chapters = new List<AudioInfo.Chapter>();
+foreach(AudioInfo.Chapter ch in ai.chapters) chapters.Add(ch);
+foreach(Bookmark b in Podcasts.GetPodcastBookmarks(p)) {
+var ch = new AudioInfo.Chapter();
+ch.name="Zakładka: "+b.name;
+ch.time=b.time;
+ch.userDefined=true;
+chapters.Add(ch);
+}
+wnd_player.SetChapters(chapters.ToArray());
 }
 }
 }

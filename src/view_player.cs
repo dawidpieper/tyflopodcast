@@ -250,12 +250,12 @@ controller.SetPosition(chapters[lst_chapters.SelectedIndex].time);
 }
 
 public void SetChapters(AudioInfo.Chapter[] tchapters) {
-if(tchapters==null || tchapters.Count()==0) return;
+if(tchapters==null) return;
 chapters=tchapters;
 lst_chapters.Items.Clear();
 foreach(AudioInfo.Chapter c in chapters) lst_chapters.Items.Add(c.name);
-lb_chapters.Visible=true;
-lst_chapters.Visible=true;
+lb_chapters.Visible=chapters.Count()>0;
+lst_chapters.Visible=chapters.Count()>0;
 }
 }
 }
