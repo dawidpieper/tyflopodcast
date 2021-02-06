@@ -31,12 +31,15 @@ private TextBox edt_description;
 private List<Category> categories;
 private List<Podcast> podcasts, currentPodcasts;
 private List<CustomCollection> collections;
+private List<int> likes;
 
 private Task updateWorker = null;
 private CancellationTokenSource updateWorkerCTS = null;
 private CancellationToken updateWorkerCT;
 
 private Controller controller;
+
+private MenuItem item_likepodcast, item_ctxlikepodcast;
 
 public TPWindow(Controller tcontroller) {
 controller=tcontroller;
@@ -45,6 +48,7 @@ categories = new List<Category>();
 podcasts = new List<Podcast>();
 currentPodcasts = new List<Podcast>();
 collections = new List<CustomCollection>();
+likes = new List<int>();
 
 this.Shown += (sender, e) => controller.Initiate();
 
@@ -60,7 +64,10 @@ lst_categories = new ListBox();
 lst_categories.Size = new Size(100, 380);
 lst_categories.Location = new Point(20,80);
 this.Controls.Add(lst_categories);
-lst_categories.SelectedIndexChanged += (sender, e) => UpdatePodcasts();
+lst_categories.SelectedIndexChanged += (sender, e) => {
+UpdatePodcasts();
+UpdateLike();
+};
 
 lb_podcasts = new Label();
 lb_podcasts.Size = new Size(250, 50);
@@ -71,6 +78,7 @@ lst_podcasts = new ListBox();
 lst_podcasts.Size = new Size(250, 380);
 lst_podcasts.Location = new Point(160, 80);
 this.Controls.Add(lst_podcasts);
+lst_podcasts.SelectedIndexChanged += (sender, e) => UpdateLike();
 lst_podcasts.DoubleClick += (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.PodcastSelected(currentPodcasts[lst_podcasts.SelectedIndex]);
@@ -106,16 +114,22 @@ item_podcast.MenuItems.Add("&Pobierz", (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.DownloadPodcast(currentPodcasts[lst_podcasts.SelectedIndex]);
 });
-item_podcast.MenuItems.Add("Pokaż &komentarze", (sender, e) => {
+item_podcast.MenuItems.Add(new MenuItem("Pokaż &komentarze", (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.ShowComments(currentPodcasts[lst_podcasts.SelectedIndex]);
-});
+}, Shortcut.CtrlK));
+item_likepodcast = new MenuItem("Po&lub", (sender, e) => {
+if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
+controller.SetLikedPodcast(currentPodcasts[lst_podcasts.SelectedIndex], !likes.Contains(currentPodcasts[lst_podcasts.SelectedIndex].id));
+UpdateLike();
+}, Shortcut.CtrlL);
+item_podcast.MenuItems.Add(item_likepodcast);
 item_podcast.MenuItems.Add("Pok&aż pobrane", (sender, e) => controller.ShowDownloads());
 MenuItem item_tyflopodcast = new MenuItem("&tyflopodcast.net");
 this.Menu.MenuItems.Add(item_tyflopodcast);
-item_tyflopodcast.MenuItems.Add("Tyflo&radio", (sender, e) => controller.RadioSelected());
-item_tyflopodcast.MenuItems.Add("Pokaż r&amówke Tyfloradia", (sender, e) => controller.ShowRadioProgram());
-item_tyflopodcast.MenuItems.Add("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()));
+item_tyflopodcast.MenuItems.Add(new MenuItem("Tyflo&radio", (sender, e) => controller.RadioSelected(), Shortcut.CtrlD));
+item_tyflopodcast.MenuItems.Add(new MenuItem("Pokaż r&amówke Tyfloradia", (sender, e) => controller.ShowRadioProgram(), Shortcut.CtrlM));
+item_tyflopodcast.MenuItems.Add(new MenuItem("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()), Shortcut.CtrlF));
 item_tyflopodcast.MenuItems.Add("&Odbuduj bazę podcastów", (sender, e) => controller.UpdateDatabase(true));
 MenuItem item_help = new MenuItem("P&omoc");
 this.Menu.MenuItems.Add(item_help);
@@ -125,8 +139,11 @@ item_help.MenuItems.Add("&O programie", (sender, e) => AppAbout());
 item_help.MenuItems.Add("Sprawdź dostępność a&ktualizacji", (sender, e) => {controller.CheckForUpdates(true);});
 
 ContextMenu ctx_podcasts = new ContextMenu();
-foreach(MenuItem mi in item_podcast.MenuItems)
-ctx_podcasts.MenuItems.Add(mi.CloneMenu());
+foreach(MenuItem mi in item_podcast.MenuItems) {
+MenuItem cl = mi.CloneMenu();
+ctx_podcasts.MenuItems.Add(cl);
+if(mi==item_likepodcast) item_ctxlikepodcast=cl;
+}
 lst_podcasts.ContextMenu = ctx_podcasts;
 }
 
@@ -153,14 +170,15 @@ updateWorkerCT = updateWorkerCTS.Token;
 updateWorker = Task.Factory.StartNew(() => {
 lst_podcasts.Items.Clear();
 currentPodcasts.Clear();
-int c=-1;
+int c=-2;
 Podcast[] source;
-if(lst_categories.SelectedIndex <= categories.Count()) {
-if(lst_categories.SelectedIndex>0) c = categories[lst_categories.SelectedIndex-1].id;
+if(lst_categories.SelectedIndex <= categories.Count()+1) {
+if(lst_categories.SelectedIndex>1) c = categories[lst_categories.SelectedIndex-2].id;
+else c = lst_categories.SelectedIndex-2;
 source = podcasts.ToArray();
-} else source=collections[lst_categories.SelectedIndex-categories.Count()-1].podcasts;
+} else source=collections[lst_categories.SelectedIndex-categories.Count()-2].podcasts;
 foreach(Podcast p in source) {
-if(c==-1 || p.categories.Contains(c)) {
+if(c==-2 || (c==-1 && likes.Contains(p.id)) || (c>=0 && p.categories.Contains(c))) {
 currentPodcasts.Add(p);
 lst_podcasts.Items.Add(p.name+" ("+p.time.ToString()+")");
 }
@@ -180,7 +198,7 @@ cc.podcasts=podcasts;
 collections.Add(cc);
 lst_categories.Items.Add(cc.name);
 if(jump) {
-lst_categories.SelectedIndex = categories.Count()+collections.Count();
+lst_categories.SelectedIndex = categories.Count()+collections.Count()+1;
 UpdatePodcasts();
 }
 }
@@ -201,6 +219,7 @@ currentPodcasts.Clear();
 lst_categories.Items.Clear();
 lst_podcasts.Items.Clear();
 lst_categories.Items.Add("Wszystkie podcasty");
+lst_categories.Items.Add("Polubione podcasty");
 lst_categories.SelectedIndex=0;
 }
 
@@ -215,6 +234,18 @@ Dozwala się jego dalsze rozprowadzanie lub modyfikację  na warunkach licencji 
 Kod źródłowy aplikacji znajduje się na jej stronie w serwisie Github.
 ";
 MessageBox.Show(this, message, title);
+}
+
+public void SetLikedPodcasts(Podcast[] podcasts) {
+likes.Clear();
+foreach(Podcast p in podcasts) likes.Add(p.id);
+}
+
+private void UpdateLike() {
+if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
+item_likepodcast.Checked = likes.Contains(currentPodcasts[lst_podcasts.SelectedIndex].id);
+else item_likepodcast.Checked=false;
+item_ctxlikepodcast.Checked = item_likepodcast.Checked;
 }
 }
 }

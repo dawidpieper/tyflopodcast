@@ -24,6 +24,12 @@ using HtmlAgilityPack;
 
 namespace Tyflopodcast {
 
+public struct Bookmark {
+public int podcast;
+public string name;
+public float time;
+}
+
 public struct Podcast {
 public int id;
 public DateTime time;
@@ -49,6 +55,10 @@ public class Podcasts {
 private static List<Podcast> localPodcasts=null;
 
 public static List<Category> categories;
+
+public static List<Bookmark> bookmarks;
+
+public static List<int> likes;
 
 public const String url = "http://tyflopodcast.net";
 public const String jsonurl = "http://tyflopodcast.net/wp-json/wp/v2";
@@ -190,8 +200,57 @@ return podcasts;
 }
 
 private static readonly byte[] MagicNumber = {0xa4, 0x87, 0x42, 0x3f, 0x11, 0x37, 0x99, 0xfa};
+private static readonly byte[] MagicInternalNumber = {0xa4, 0x87, 0x42, 0x3f, 0x11, 0x37, 0x99, 0xfb};
+
+private static bool LoadInternal() {
+string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
+System.IO.Directory.CreateDirectory(datadir);
+likes = new List<int>();
+bookmarks = new List<Bookmark>();
+if(!File.Exists(datadir+"\\internal.dat")) return false;
+try {
+using (BinaryReader br = new BinaryReader(File.Open(datadir+"\\internal.dat", FileMode.Open))) {
+for(int i=0; i<MagicInternalNumber.Count(); ++i)
+if(br.ReadByte() != MagicInternalNumber[i]) return false;
+int cnt_likes = br.ReadInt32();
+for(int i=0; i<cnt_likes; ++i) likes.Add(br.ReadInt32());
+int cnt_bookmarks = br.ReadInt32();
+for(int i=0; i<cnt_bookmarks; ++i) {
+Bookmark b;
+b.podcast = br.ReadInt32();
+b.name = br.ReadString();
+b.time = br.ReadSingle();
+bookmarks.Add(b);
+}
+}
+}
+catch {return false;}
+return true;
+}
+
+private static bool SaveInternal() {
+string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
+System.IO.Directory.CreateDirectory(datadir);
+try {
+using (BinaryWriter bw = new BinaryWriter(File.Open(datadir+"\\internal.dat", FileMode.Create))) {
+for(int i=0; i<MagicInternalNumber.Count(); ++i)
+bw.Write(MagicInternalNumber[i]);
+bw.Write(likes.Count());
+foreach(int l in likes) bw.Write(l);
+bw.Write(bookmarks.Count());
+foreach(Bookmark b in bookmarks) {
+bw.Write(b.podcast);
+bw.Write(b.name);
+bw.Write(b.time);
+}
+}
+}
+catch {return false;}
+return true;
+}
 
 private static bool LoadLocalDB() {
+LoadInternal();
 string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
 System.IO.Directory.CreateDirectory(datadir);
 if(!File.Exists(datadir+"\\db.dat")) return false;
@@ -364,16 +423,16 @@ return (false, null);
 }
 
 public static (bool, string) CheckForUpdates() {
-//try {
+try {
 if(apiClient==null) Init();
 String u=versionurl;
 var response = apiClient.GetAsync(u).Result;
 var json = response.Content.ReadAsStringAsync().Result;
 dynamic j = JsonConvert.DeserializeObject(json);
 return (j.lastVersion!=Program.version, j.lastVersion);
-//} catch {
-//return (false, null);
-//}
+} catch {
+return (false, null);
+}
 }
 
 public static bool WriteComment(string action, Dictionary<string, string> fields, string name, string mail, string url, string comment) {
@@ -416,5 +475,46 @@ return (null,null);
 }
 }
 
+public static void LikePodcast(Podcast podcast) {
+if(!likes.Contains(podcast.id)) {
+likes.Add(podcast.id);
+SaveInternal();
+}
+}
+
+public static void DislikePodcast(Podcast podcast) {
+if(likes.Contains(podcast.id)) {
+likes.Remove(podcast.id);
+SaveInternal();
+}
+}
+
+public static Podcast[] GetLikedPodcasts() {
+var ret = new List<Podcast>();
+foreach(Podcast p in localPodcasts)
+if(likes!=null && likes.Contains(p.id)) ret.Add(p);
+return ret.ToArray();
+}
+
+public static Bookmark[] GetPodcastBookmarks(Podcast podcast) {
+var ret = new List<Bookmark>();
+foreach(Bookmark b in bookmarks)
+if(b.podcast==podcast.id) ret.Add(b);
+return ret.ToArray();
+}
+
+public static void AddBookmark(Podcast podcast, string name, float time) {
+var b = new Bookmark();
+b.podcast=podcast.id;
+b.time=time;
+b.name=name;
+bookmarks.Add(b);
+SaveInternal();
+}
+
+public static void DeleteBookmark(Bookmark bookmark) {
+bookmarks.Remove(bookmark);
+SaveInternal();
+}
 }
 }

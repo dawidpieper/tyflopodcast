@@ -20,7 +20,7 @@ private Controller controller;
 private Label lb_timer, lb_volume, lb_tempo, lb_chapters;
 private TyfloTrackBar tb_timer, tb_volume, tb_tempo;
 private ListBox lst_chapters;
-private Button btn_play, btn_download, btn_comments, btn_close;
+private Button btn_play, btn_bookmarks, btn_download, btn_comments, btn_close;
 
 private string name, artist;
 
@@ -121,29 +121,36 @@ lst_chapters.KeyDown += TBKeyDown;
 
 btn_play = new Button();
 btn_play.Text = "Play/Pauza";
-btn_play.Size = new Size(70, 100);
+btn_play.Size = new Size(50, 100);
 btn_play.Location = new Point(20, 240);
 btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
 
+btn_bookmarks = new Button();
+btn_bookmarks.Text = "Zakładki";
+btn_bookmarks.Size = new Size(50, 100);
+btn_bookmarks.Location = new Point(90, 240);
+btn_bookmarks.Click += (sender, e) => controller.Bookmarks(podcast, tb_timer.Value);
+this.Controls.Add(btn_bookmarks);
+
 btn_download = new Button();
 btn_download.Text = "Pobierz";
-btn_download.Size = new Size(70, 100);
-btn_download.Location = new Point(110, 240);
+btn_download.Size = new Size(50, 100);
+btn_download.Location = new Point(160, 240);
 btn_download.Click += (sender, e) => controller.DownloadPodcast(podcast);
 this.Controls.Add(btn_download);
 
 btn_comments = new Button();
 btn_comments.Text = "Pokaż komentarze";
-btn_comments.Size = new Size(70, 100);
-btn_comments.Location = new Point(200, 240);
+btn_comments.Size = new Size(50, 100);
+btn_comments.Location = new Point(230, 240);
 btn_comments.Click += (sender, e) => controller.ShowComments(podcast);
 this.Controls.Add(btn_comments);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(70, 100);
-btn_close.Location = new Point(290, 240);
+btn_close.Size = new Size(50, 100);
+btn_close.Location = new Point(300, 240);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 

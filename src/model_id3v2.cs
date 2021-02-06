@@ -128,6 +128,7 @@ return r;
 public struct Chapter {
 public string name;
 public double time;
+public bool userDefined;
 }
 
 private List<ID3Frame> frames=null;
@@ -159,6 +160,7 @@ if(f.id=="CHAP" && f.subframes!=null) {
 Chapter c = new Chapter();
 c.time=(double)f.numValue/1000.0;
 c.name="";
+c.userDefined=false;
 foreach(ID3Frame g in f.subframes)
 if(g.id=="TIT2") c.name=g.strValue;
 chapters.Add(c);

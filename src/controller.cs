@@ -37,6 +37,7 @@ private CommentWriteWindow wnd_commentwrite;
 private ContactRadioWindow wnd_contact;
 private ContactRadioPhoneWindow wnd_contactphone;
 private RadioProgramWindow wnd_program;
+private BookmarksWindow wnd_bookmarks;
 private System.Timers.Timer tm_audioposition=null;
 
 private string[] args;
@@ -142,7 +143,16 @@ SetFile(location);
 AudioInfo ai = new AudioInfo(stream);
 wnd_player.SetName(ai.title);
 wnd_player.SetArtist(ai.artist);
-wnd_player.SetChapters(ai.chapters);
+var chapters = new List<AudioInfo.Chapter>();
+foreach(AudioInfo.Chapter ch in ai.chapters) chapters.Add(ch);
+foreach(Bookmark b in Podcasts.GetPodcastBookmarks(p)) {
+var ch = new AudioInfo.Chapter();
+ch.name="Zakładka: "+b.name;
+ch.time=b.time;
+ch.userDefined=true;
+chapters.Add(ch);
+}
+wnd_player.SetChapters(chapters.ToArray());
 Play();
 tm_audioposition = new System.Timers.Timer(250);
 tm_audioposition.AutoReset = true;
@@ -305,6 +315,7 @@ wnd.Clear();
 foreach(Category c in Podcasts.categories) wnd.AddCategory(c);
 foreach(Podcast p in podcasts) wnd.AddPodcast(p);
 wnd.UpdatePodcasts();
+wnd.SetLikedPodcasts(Podcasts.GetLikedPodcasts());
 
 }
 
@@ -445,6 +456,28 @@ Comment[] comments;
 if(Podcasts.GetPodcastComments(podcast.id, out comments) && wnd_comments!=null) {
 wnd_comments.SetComments(comments);
 }
+}
+
+public void SetLikedPodcast(Podcast podcast, bool liked) {
+if(liked) Podcasts.LikePodcast(podcast);
+else Podcasts.DislikePodcast(podcast);
+wnd.SetLikedPodcasts(Podcasts.GetLikedPodcasts());
+}
+
+public void Bookmarks(Podcast podcast, double time) {
+wnd_bookmarks = new BookmarksWindow(podcast, time, this);
+wnd_bookmarks.ShowDialog(wnd_player);
+}
+
+public void AddBookmark(Podcast podcast, string name, double time) {
+Podcasts.AddBookmark(podcast, name, (float)time);
+wnd_bookmarks.UpdateBookmarks();
+}
+
+public void DeleteBookmark(Podcast podcast, Bookmark bookmark) {
+if(bookmark.podcast!=podcast.id) return;
+Podcasts.DeleteBookmark(bookmark);
+wnd_bookmarks.UpdateBookmarks();
 }
 }
 }
