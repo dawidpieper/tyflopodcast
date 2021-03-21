@@ -471,7 +471,12 @@ UpdateAudioInfo(podcast);
 }
 
 private void UpdateAudioInfo(Podcast p) {
-AudioInfo ai = new AudioInfo(stream);
+if(stream==0) return;
+AudioInfo ai;
+try {
+ai = new AudioInfo(stream);
+} catch(Exception) {return;}
+if(ai==null) return;
 wnd_player.SetName(ai.title);
 wnd_player.SetArtist(ai.artist);
 var chapters = new List<AudioInfo.Chapter>();

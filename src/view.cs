@@ -209,6 +209,7 @@ edt_description.Text="";
 return;
 }
 Podcast p = currentPodcasts[lst_podcasts.SelectedIndex];
+if(p.description!=null)
 edt_description.Text = p.description.Replace("\n", "\r\n");
 }
 
