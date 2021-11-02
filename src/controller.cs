@@ -245,10 +245,10 @@ if(wnd!=null)
 wnd.AddCustomCollection("Szukaj: "+term, lresults.ToArray(), true);
 }
 
-public void ShowComments(Podcast podcast) {
+public void ShowComments(Podcast podcast, bool playing=false) {
 Comment[] comments;
 if(Podcasts.GetPodcastComments(podcast.id, out comments)) {
-wnd_comments = new CommentsWindow(podcast, comments, this);
+wnd_comments = new CommentsWindow(podcast, comments, this, playing);
 wnd_comments.ShowDialog(wnd_player);
 }
 }
@@ -327,7 +327,7 @@ PodcastSelected(p, location);
 }
 
 public void ShowURL(string url) {
-System.Diagnostics.Process.Start(url);
+System.Diagnostics.Process.Start("explorer", url);
 }
 
 public void ContactRadio() {
@@ -411,7 +411,6 @@ private bool OpenDownloader(string source, string destination, string label="Pob
 var l = new LoadingWindow(label);
 l.SetStatus("Inicjowanie...");
 bool cancelled = true;
-Thread dwnThread = new Thread(() => {
 using (var client = new WebClient ()) {
 client.DownloadProgressChanged += (sender, e) => {
 l.SetPercentage(e.ProgressPercentage);
@@ -422,11 +421,9 @@ cancelled=false;
 l.Close();
 };
 client.DownloadFileAsync(new Uri(source), destination);
-}
-});
-dwnThread.Start();
 l.ShowDialog(wnd);
-if(cancelled) dwnThread.Abort();
+if(cancelled) client.CancelAsync();
+}
 return !cancelled;
 }
 
@@ -473,9 +470,9 @@ UpdateAudioInfo(podcast);
 private void UpdateAudioInfo(Podcast p) {
 if(stream==0) return;
 AudioInfo ai;
-try {
+//try {
 ai = new AudioInfo(stream);
-} catch(Exception) {return;}
+//} catch(Exception) {return;}
 if(ai==null) return;
 wnd_player.SetName(ai.title);
 wnd_player.SetArtist(ai.artist);

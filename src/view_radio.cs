@@ -27,19 +27,19 @@ controller=tcontroller;
 this.FormBorderStyle = FormBorderStyle.FixedDialog ;
 this.ShowInTaskbar=false;
 
-this.Size = new Size(320, 240);
+this.Size = new Size(396, 205);
 this.StartPosition = FormStartPosition.CenterScreen;
 UpdateWindowCaption();
 
 lb_volume = new Label();
 lb_volume.Text = "Głośność";
-lb_volume.Size = new Size(100, 50);
+lb_volume.Size = new Size(80, 50);
 lb_volume.Location = new Point(20, 20);
 this.Controls.Add(lb_volume);
 
 tb_volume = new TyfloTrackBar();
-tb_volume.Size = new Size(160, 50);
-tb_volume.Location = new Point(140, 20);
+tb_volume.Size = new Size(250, 50);
+tb_volume.Location = new Point(100, 20);
 tb_volume.Minimum=0;
 tb_volume.Maximum=100;
 tb_volume.TickFrequency = 5;
@@ -53,23 +53,23 @@ this.Controls.Add(tb_volume);
 tb_volume.KeyDown += TBKeyDown;
 
 btn_play = new Button();
-btn_play.Text = "Play/Pauza";
-btn_play.Size = new Size(70, 120);
-btn_play.Location = new Point(20, 100);
+btn_play.Text = "P&lay/Pauza";
+btn_play.Size = new Size(100, 40);
+btn_play.Location = new Point(20, 70);
 btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
 
 btn_contact = new Button();
-btn_contact.Text = "Napisz lub zadzwoń do Tyfloradia";
-btn_contact.Size = new Size(70, 120);
-btn_contact.Location = new Point(110, 100);
+btn_contact.Text = "&Napisz lub zadzwoń do Tyfloradia";
+btn_contact.Size = new Size(100, 80);
+btn_contact.Location = new Point(140, 70);
 btn_contact.Click += (sender, e) => controller.ContactRadio();
 this.Controls.Add(btn_contact);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(70, 120);
-btn_close.Location = new Point(200, 100);
+btn_close.Size = new Size(100, 40);
+btn_close.Location = new Point(260, 70);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 
@@ -101,18 +101,18 @@ this.Text=sb.ToString();
 }
 
 public void ShowContactRadioContext(bool callAvailable) {
-ContextMenu cm = new ContextMenu();
-cm.MenuItems.Add("&Napisz", (sender, e) => {controller.ContactRadioText();});
+ContextMenuStrip cm = new ContextMenuStrip();
+cm.Items.Add("&Napisz", null, (sender, e) => {controller.ContactRadioText();});
 if(callAvailable) {
-MenuItem item_call = new MenuItem("&Zadzwoń");
-cm.MenuItems.Add(item_call);
-item_call.MenuItems.Add("Przez &aplikację Zoom", (sender, e) => {
+var item_call = new ToolStripMenuItem("&Zadzwoń");
+cm.Items.Add(item_call);
+item_call.DropDownItems.Add("Przez &aplikację Zoom", null, (sender, e) => {
 controller.ContactRadioZoom();
 });
-item_call.MenuItems.Add("Przez przeglądarkę &Internetową", (sender, e) => {
+item_call.DropDownItems.Add("Przez przeglądarkę &Internetową", null, (sender, e) => {
 controller.ContactRadioBrowser();
 });
-item_call.MenuItems.Add("Przez &telefon", (sender, e) => {
+item_call.DropDownItems.Add("Przez &telefon", null, (sender, e) => {
 controller.ContactRadioPhone();
 });
 }

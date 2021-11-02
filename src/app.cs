@@ -13,24 +13,27 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Fx;
 
 namespace Tyflopodcast {
 
 public class Program {
-public static string version = "1.3.1";
+public static string version = "1.4";
 
 private static TPWindow wnd;
 
 public static void PrepareLibraries() {
+string path = Application.StartupPath;
+if(!File.Exists(path+@"lib")) path=Environment.CurrentDirectory;
 bool suc=false;
 if(IntPtr.Size == 8) {
-suc=Bass.LoadMe(Application.StartupPath+@"\lib64");
-if(suc) suc=BassFx.LoadMe(Application.StartupPath+@"\lib64");
+suc=Bass.LoadMe(path+@"\lib64");
+if(suc) suc=BassFx.LoadMe(path+@"\lib64");
 } else {
-suc=Bass.LoadMe(Application.StartupPath+@"\lib32");
-if(suc) suc=BassFx.LoadMe(Application.StartupPath+@"\lib32");
+suc=Bass.LoadMe(path+@"\lib32");
+if(suc) suc=BassFx.LoadMe(path+@"\lib32");
 }
 if(!suc) {
 MessageBox.Show("Możliwe, że biblioteka nie znajduje się już w poprzedniej lokalizacji. Jeśli program był przenoszony, należy się upewnić czy wraz z nim przeniesiono pozostałe foldery aplikacji. W razie problemów zaleca się ponowne pobranie programu.", "Nie udało się załadować biblioteki Bass.", 0, MessageBoxIcon.Error);

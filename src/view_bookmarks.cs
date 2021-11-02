@@ -38,7 +38,7 @@ this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = "Zakładki podcastu "+podcast.name+" - Tyflopodcast";
 
 lb_bookmarks = new Label();
-lb_bookmarks.Text = "Zakładki";
+lb_bookmarks.Text = "&Zakładki";
 lb_bookmarks.Size = new Size(50, 100);
 lb_bookmarks.Location = new Point(20, 20);
 this.Controls.Add(lb_bookmarks);
@@ -49,14 +49,14 @@ lst_bookmarks.Location = new Point(20, 70);
 this.Controls.Add(lst_bookmarks);
 
 btn_delete = new Button();
-btn_delete.Text = "Usuń";
+btn_delete.Text = "&Usuń";
 btn_delete.Size = new Size(150, 50);
 btn_delete.Location = new Point(20, 170);
 btn_delete.Click += (sender, e) => DeleteBookmark();
 this.Controls.Add(btn_delete);
 
 lb_name = new Label();
-lb_name.Text = "Nazwa zakładki";
+lb_name.Text = "&Nazwa zakładki";
 lb_name.Size = new Size(150, 50);
 lb_name.Location = new Point(190, 20);
 this.Controls.Add(lb_name);
@@ -67,7 +67,7 @@ edt_name.Location = new Point(190, 70);
 this.Controls.Add(edt_name);
 
 btn_add = new Button();
-btn_add.Text = "Dodaj tutaj";
+btn_add.Text = "Dod&aj tutaj";
 btn_add.Size = new Size(150, 50);
 btn_add.Location = new Point(190, 170);
 btn_add.Click += (sender, e) => AddBookmark();
