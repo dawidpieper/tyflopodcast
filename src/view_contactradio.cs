@@ -25,44 +25,44 @@ controller=tcontroller;
 this.FormBorderStyle = FormBorderStyle.FixedDialog ;
 this.ShowInTaskbar=false;
 
-this.Size = new Size(320, 240);
+this.Size = new Size(700, 525);
 this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = title+" - Napisz do Tyfloradia";
 
 lb_name = new Label();
 lb_name.Text = "Podpis";
-lb_name.Size = new Size(40,50);
+lb_name.Size = new Size(50,30);
 lb_name.Location = new Point(20, 20);
 this.Controls.Add(lb_name);
 
 edt_name = new TextBox();
 edt_name.Size = new Size(240, 50);
-edt_name.Location = new Point(60, 20);
+edt_name.Location = new Point(100, 20);
 this.Controls.Add(edt_name);
 
 lb_message = new Label();
 lb_message.Text = "Wiadomość";
-lb_message.Size = new Size(40,100);
+lb_message.Size = new Size(70,30);
 lb_message.Location = new Point(20, 80);
 this.Controls.Add(lb_message);
 
 edt_message = new TextBox();
-edt_message.Size = new Size(240, 100);
-edt_message.Location = new Point(60, 80);
+edt_message.Size = new Size(563, 300);
+edt_message.Location = new Point(100, 80);
 edt_message.Multiline = true;
 this.Controls.Add(edt_message);
 
 btn_send = new Button();
 btn_send.Text = "Wyślij";
-btn_send.Size = new Size(100, 30);
-btn_send.Location = new Point(20, 190);
+btn_send.Size = new Size(320, 60);
+btn_send.Location = new Point(20, 410);
 btn_send.Click += (sender,e) => Send();
 this.Controls.Add(btn_send);
 
 btn_cancel = new Button();
 btn_cancel.Text = "Anuluj";
-btn_cancel.Size = new Size(100, 30);
-btn_cancel.Location = new Point(150, 190);
+btn_cancel.Size = new Size(320, 60);
+btn_cancel.Location = new Point(345, 410);
 this.Controls.Add(btn_cancel);
 
 this.CancelButton = btn_cancel;

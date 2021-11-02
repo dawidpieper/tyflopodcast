@@ -28,30 +28,30 @@ controller=tcontroller;
 this.FormBorderStyle = FormBorderStyle.FixedDialog ;
 this.ShowInTaskbar=false;
 
-this.Size = new Size(320, 240);
+this.Size = new Size(535, 240);
 this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = "Przeszukaj Tyflopodcast";
 
 lb_term = new Label();
 lb_term.Text = "Szukaj";
-lb_term.Size = new Size(40,50);
+lb_term.Size = new Size(40,30);
 lb_term.Location = new Point(20, 20);
 this.Controls.Add(lb_term);
 
 edt_term = new TextBox();
-edt_term.Size = new Size(240, 50);
+edt_term.Size = new Size(440, 30);
 edt_term.Location = new Point(60,20);
 this.Controls.Add(edt_term);
 
 lb_searchin = new Label();
 lb_searchin.Text = "Szukaj w";
-lb_searchin.Size = new Size(40,50);
-lb_searchin.Location = new Point(20, 90);
+lb_searchin.Size = new Size(60,30);
+lb_searchin.Location = new Point(20, 60);
 this.Controls.Add(lb_searchin);
 
 lst_searchin = new ListBox();
-lst_searchin.Size = new Size(240, 50);
-lst_searchin.Location = new Point(60, 90);
+lst_searchin.Size = new Size(420, 50);
+lst_searchin.Location = new Point(80, 60);
 string[] items = {"Tytuły i opisy", "Tytuły", "Opisy", "Komentarze", "Wszystko"};
 foreach(string item in items) lst_searchin.Items.Add(item);
 lst_searchin.SelectedIndex=0;
@@ -59,15 +59,15 @@ this.Controls.Add(lst_searchin);
 
 btn_search = new Button();
 btn_search.Text = "Szukaj";
-btn_search.Size = new Size(100, 50);
-btn_search.Location = new Point(20, 170);
+btn_search.Size = new Size(230, 50);
+btn_search.Location = new Point(20, 130);
 btn_search.Click += (sender,e) => Search();
 this.Controls.Add(btn_search);
 
 btn_cancel = new Button();
 btn_cancel.Text = "Anuluj";
-btn_cancel.Size = new Size(100, 50);
-btn_cancel.Location = new Point(150, 170);
+btn_cancel.Size = new Size(230, 50);
+btn_cancel.Location = new Point(270, 130);
 this.Controls.Add(btn_cancel);
 
 this.CancelButton = btn_cancel;

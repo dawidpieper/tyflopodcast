@@ -31,66 +31,66 @@ fields=tfields;
 this.FormBorderStyle = FormBorderStyle.FixedDialog ;
 this.ShowInTaskbar=false;
 
-this.Size = new Size(640, 480);
+this.Size = new Size(655, 500);
 this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = "Skomentuj podcast "+podcast.name;
 
 lb_name = new Label();
 lb_name.Text = "Podpis";
-lb_name.Size = new Size(100,50);
+lb_name.Size = new Size(50,30);
 lb_name.Location = new Point(20, 20);
 this.Controls.Add(lb_name);
 
 edt_name = new TextBox();
-edt_name.Size = new Size(340, 50);
-edt_name.Location = new Point(480, 20);
+edt_name.Size = new Size(160, 50);
+edt_name.Location = new Point(140, 20);
 this.Controls.Add(edt_name);
 
 lb_mail = new Label();
 lb_mail.Text = "Adres E-mail (nie zostanie opublikowany)";
-lb_mail.Size = new Size(100,50);
-lb_mail.Location = new Point(20, 90);
+lb_mail.Size = new Size(90,50);
+lb_mail.Location = new Point(20, 70);
 this.Controls.Add(lb_mail);
 
 edt_mail = new TextBox();
 edt_mail.Size = new Size(480, 50);
-edt_mail.Location = new Point(140, 90);
+edt_mail.Location = new Point(140, 70);
 this.Controls.Add(edt_mail);
 
 lb_url = new Label();
 lb_url.Text = "Witryna Internetowa";
 lb_url.Size = new Size(100,50);
-lb_url.Location = new Point(20, 160);
+lb_url.Location = new Point(20, 137);
 this.Controls.Add(lb_url);
 
 edt_url = new TextBox();
 edt_url.Size = new Size(480, 50);
-edt_url.Location = new Point(140, 160);
+edt_url.Location = new Point(140, 140);
 this.Controls.Add(edt_url);
 
 lb_message = new Label();
 lb_message.Text = "Komentarz";
-lb_message.Size = new Size(50,160);
-lb_message.Location = new Point(20, 230);
+lb_message.Size = new Size(100,50);
+lb_message.Location = new Point(20, 210);
 this.Controls.Add(lb_message);
 
 edt_message = new TextBox();
 edt_message.Size = new Size(480, 160);
-edt_message.Location = new Point(90, 230);
+edt_message.Location = new Point(140, 210);
 edt_message.Multiline = true;
 this.Controls.Add(edt_message);
 
 btn_send = new Button();
 btn_send.Text = "Wyślij";
 btn_send.Size = new Size(300, 50);
-btn_send.Location = new Point(20, 410);
+btn_send.Location = new Point(20, 390);
 btn_send.Click += (sender,e) => Send();
 this.Controls.Add(btn_send);
 
 btn_cancel = new Button();
 btn_cancel.Text = "Anuluj";
 btn_cancel.Size = new Size(300, 50);
-btn_cancel.Location = new Point(320, 410);
+btn_cancel.Location = new Point(320, 390);
 this.Controls.Add(btn_cancel);
 
 this.CancelButton = btn_cancel;

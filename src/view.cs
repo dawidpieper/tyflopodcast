@@ -39,7 +39,7 @@ private CancellationToken updateWorkerCT;
 
 private Controller controller;
 
-private MenuItem item_likepodcast, item_ctxlikepodcast;
+private ToolStripMenuItem item_likepodcast, item_ctxlikepodcast;
 
 public TPWindow(Controller tcontroller) {
 controller=tcontroller;
@@ -52,17 +52,18 @@ likes = new List<int>();
 
 this.Shown += (sender, e) => controller.Initiate();
 
-this.Size = new Size(640,480);
+this.Size = new Size(790,500);
 this.Text = "Tyflopodcast";
+this.AutoScroll=true;
 
 lb_categories = new Label();
-lb_categories.Size = new Size(100, 50);
-lb_categories.Location = new Point(20,20);
+lb_categories.Size = new Size(140, 17);
+lb_categories.Location = new Point(18,40);
 lb_categories.Text = "Kategorie";
 this.Controls.Add(lb_categories);
 lst_categories = new ListBox();
-lst_categories.Size = new Size(100, 380);
-lst_categories.Location = new Point(20,80);
+lst_categories.Size = new Size(149, 380);
+lst_categories.Location = new Point(20,60);
 this.Controls.Add(lst_categories);
 lst_categories.SelectedIndexChanged += (sender, e) => {
 UpdatePodcasts();
@@ -70,13 +71,13 @@ UpdateLike();
 };
 
 lb_podcasts = new Label();
-lb_podcasts.Size = new Size(250, 50);
-lb_podcasts.Location = new Point(160, 20);
+lb_podcasts.Size = new Size(250, 17);
+lb_podcasts.Location = new Point(164, 40);
 lb_podcasts.Text = "Podcasty";
 this.Controls.Add(lb_podcasts);
 lst_podcasts = new ListBox();
-lst_podcasts.Size = new Size(250, 380);
-lst_podcasts.Location = new Point(160, 80);
+lst_podcasts.Size = new Size(400, 380);
+lst_podcasts.Location = new Point(165, 60);
 this.Controls.Add(lst_podcasts);
 lst_podcasts.SelectedIndexChanged += (sender, e) => UpdateLike();
 lst_podcasts.DoubleClick += (sender, e) => {
@@ -92,59 +93,61 @@ controller.PodcastSelected(currentPodcasts[lst_podcasts.SelectedIndex]);
 lst_podcasts.SelectedIndexChanged += (sender, e) => UpdateDescription();
 
 lb_description = new Label();
-lb_description.Size = new Size(190, 50);
-lb_description.Location = new Point(530, 20);
+lb_description.Size = new Size(190, 17);
+lb_description.Location = new Point(564, 40);
 lb_description.Text = "Opis";
 this.Controls.Add(lb_description);
 edt_description = new TextBox();
-edt_description.Size = new Size(190, 380);
-edt_description.Location = new Point(530, 80);
+edt_description.Size = new Size(190, 379);
+edt_description.Location = new Point(564, 60);
 edt_description.ReadOnly = true;
 edt_description.Multiline = true;
 this.Controls.Add(edt_description);
 
-this.Menu = new MainMenu();
-MenuItem item_podcast = new MenuItem("&Podcast");
-this.Menu.MenuItems.Add(item_podcast);
-item_podcast.MenuItems.Add("&Otwórz", (sender, e) => {
+this.MainMenuStrip = new MenuStrip();
+this.MainMenuStrip.Parent = this;
+ToolStripMenuItem item_podcast = new ToolStripMenuItem("&Podcast");
+this.MainMenuStrip.Items.Add(item_podcast);
+item_podcast.DropDownItems.Add(new ToolStripMenuItem("&Otwórz", null, (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.PodcastSelected(currentPodcasts[lst_podcasts.SelectedIndex]);
-});
-item_podcast.MenuItems.Add("&Pobierz", (sender, e) => {
+}));
+item_podcast.DropDownItems.Add(new ToolStripMenuItem("&Pobierz", null, (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.DownloadPodcast(currentPodcasts[lst_podcasts.SelectedIndex]);
-});
-item_podcast.MenuItems.Add(new MenuItem("Pokaż &komentarze", (sender, e) => {
+}));
+item_podcast.DropDownItems.Add(new ToolStripMenuItem("Pokaż &komentarze", null, (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.ShowComments(currentPodcasts[lst_podcasts.SelectedIndex]);
-}, Shortcut.CtrlK));
-item_likepodcast = new MenuItem("Po&lub", (sender, e) => {
+}, Keys.Control|Keys.K));
+item_likepodcast = new ToolStripMenuItem("Po&lub", null, (sender, e) => {
 if(lst_podcasts.SelectedIndex>=0 && lst_podcasts.SelectedIndex<currentPodcasts.Count)
 controller.SetLikedPodcast(currentPodcasts[lst_podcasts.SelectedIndex], !likes.Contains(currentPodcasts[lst_podcasts.SelectedIndex].id));
 UpdateLike();
-}, Shortcut.CtrlL);
-item_podcast.MenuItems.Add(item_likepodcast);
-item_podcast.MenuItems.Add("Pok&aż pobrane", (sender, e) => controller.ShowDownloads());
-MenuItem item_tyflopodcast = new MenuItem("&tyflopodcast.net");
-this.Menu.MenuItems.Add(item_tyflopodcast);
-item_tyflopodcast.MenuItems.Add(new MenuItem("Tyflo&radio", (sender, e) => controller.RadioSelected(), Shortcut.CtrlD));
-item_tyflopodcast.MenuItems.Add(new MenuItem("Pokaż r&amówke Tyfloradia", (sender, e) => controller.ShowRadioProgram(), Shortcut.CtrlM));
-item_tyflopodcast.MenuItems.Add(new MenuItem("&Szukaj", (sender, e) => controller.SearchPodcasts(podcasts.ToArray()), Shortcut.CtrlF));
-item_tyflopodcast.MenuItems.Add("&Odbuduj bazę podcastów", (sender, e) => controller.UpdateDatabase(true));
-MenuItem item_help = new MenuItem("P&omoc");
-this.Menu.MenuItems.Add(item_help);
-item_help.MenuItems.Add("Strona Internetowa &tyflopodcast.net", (sender, e) => controller.ShowURL("http://tyflopodcast.net"));
-item_help.MenuItems.Add("Strona Internetowa tej &aplikacji", (sender, e) => controller.ShowURL("https://github.com/dawidpieper/tyflopodcast"));
-item_help.MenuItems.Add("&O programie", (sender, e) => AppAbout());
-item_help.MenuItems.Add("Sprawdź dostępność a&ktualizacji", (sender, e) => {controller.CheckForUpdates(true);});
+}, Keys.Control|Keys.L);
+item_podcast.DropDownItems.Add(item_likepodcast);
+item_podcast.DropDownItems.Add(new ToolStripMenuItem("Pok&aż pobrane", null, (sender, e) => controller.ShowDownloads()));
+ToolStripMenuItem item_tyflopodcast = new ToolStripMenuItem("&tyflopodcast.net");
+this.MainMenuStrip.Items.Add(item_tyflopodcast);
+item_tyflopodcast.DropDownItems.Add(new ToolStripMenuItem("Tyflo&radio", null, (sender, e) => controller.RadioSelected(), Keys.Control|Keys.D));
+item_tyflopodcast.DropDownItems.Add(new ToolStripMenuItem("Pokaż r&amówke Tyfloradia", null, (sender, e) => controller.ShowRadioProgram(), Keys.Control|Keys.M));
+item_tyflopodcast.DropDownItems.Add(new ToolStripMenuItem("&Szukaj", null, (sender, e) => controller.SearchPodcasts(podcasts.ToArray()), Keys.Control|Keys.F));
+item_tyflopodcast.DropDownItems.Add(new ToolStripMenuItem("&Odbuduj bazę podcastów", null, (sender, e) => controller.UpdateDatabase(true)));
+ToolStripMenuItem item_help = new ToolStripMenuItem("P&omoc");
+this.MainMenuStrip.Items.Add(item_help);
+item_help.DropDownItems.Add(new ToolStripMenuItem("Strona Internetowa &tyflopodcast.net", null, (sender, e) => controller.ShowURL("http://tyflopodcast.net")));
+item_help.DropDownItems.Add(new ToolStripMenuItem("Strona Internetowa tej &aplikacji", null, (sender, e) => controller.ShowURL("https://github.com/dawidpieper/tyflopodcast")));
+item_help.DropDownItems.Add(new ToolStripMenuItem("&O programie", null, (sender, e) => AppAbout()));
+item_help.DropDownItems.Add(new ToolStripMenuItem("Sprawdź dostępność a&ktualizacji", null, (sender, e) => {controller.CheckForUpdates(true);}));
 
-ContextMenu ctx_podcasts = new ContextMenu();
-foreach(MenuItem mi in item_podcast.MenuItems) {
-MenuItem cl = mi.CloneMenu();
-ctx_podcasts.MenuItems.Add(cl);
+var ctx_podcasts = new ContextMenuStrip();
+foreach(ToolStripMenuItem mi in item_podcast.DropDownItems) {
+ToolStripMenuItem cl = new ToolStripMenuItem(mi.Text, null, (sender, e) => {mi.PerformClick();});
+ctx_podcasts.Items.Add(cl);
 if(mi==item_likepodcast) item_ctxlikepodcast=cl;
 }
-lst_podcasts.ContextMenu = ctx_podcasts;
+lst_podcasts.ContextMenuStrip = ctx_podcasts;
+
 }
 
 public void AddPodcast(Podcast podcast) {

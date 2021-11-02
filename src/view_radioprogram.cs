@@ -26,19 +26,19 @@ controller=tcontroller;
 this.FormBorderStyle = FormBorderStyle.FixedDialog ;
 this.ShowInTaskbar=false;
 
-this.Size = new Size(320, 240);
+this.Size = new Size(635, 800);
 this.StartPosition = FormStartPosition.CenterScreen;
 this.Text = "Aktualna ramówka Tyfloradia - Tyflopodcast";
 
 lb_program = new Label();
 lb_program.Text = "Ramówka";
-lb_program.Size = new Size(200, 50);
-lb_program.Location = new Point(60, 20);
+lb_program.Size = new Size(500, 20);
+lb_program.Location = new Point(20, 5);
 this.Controls.Add(lb_program);
 
 edt_program = new TextBox();
-edt_program.Size = new Size(280, 100);
-edt_program.Location = new Point(20, 70);
+edt_program.Size = new Size(580, 660);
+edt_program.Location = new Point(20, 35);
 edt_program.ReadOnly = true;
 edt_program.Multiline = true;
 edt_program.Text=program.Replace("\n", "\r\n");
@@ -46,8 +46,8 @@ this.Controls.Add(edt_program);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(120, 40);
-btn_close.Location = new Point(100, 180);
+btn_close.Size = new Size(420, 40);
+btn_close.Location = new Point(100, 700);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 

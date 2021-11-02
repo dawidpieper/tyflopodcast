@@ -34,7 +34,7 @@ controller=tcontroller;
 this.FormBorderStyle = FormBorderStyle.FixedDialog ;
 this.ShowInTaskbar=false;
 
-this.Size = new Size(480, 360);
+this.Size = new Size(634, 500);
 this.StartPosition = FormStartPosition.CenterScreen;
 name=podcast.name;
 artist=null;
@@ -42,13 +42,13 @@ UpdateWindowCaption();
 
 lb_timer = new Label();
 lb_timer.Text = "Pobieranie informacji o strumieniu...";
-lb_timer.Size = new Size(50, 50);
+lb_timer.Size = new Size(90, 50);
 lb_timer.Location = new Point(20, 20);
 this.Controls.Add(lb_timer);
 
 tb_timer = new TyfloTrackBar();
-tb_timer.Size = new Size(130, 50);
-tb_timer.Location = new Point(70, 20);
+tb_timer.Size = new Size(490, 50);
+tb_timer.Location = new Point(110, 20);
 tb_timer.Minimum=0;
 tb_timer.Maximum=0;
 tb_timer.TickFrequency = 15;
@@ -62,13 +62,13 @@ this.Controls.Add(tb_timer);
 
 lb_volume = new Label();
 lb_volume.Text = "Głośność";
-lb_volume.Size = new Size(50, 50);
+lb_volume.Size = new Size(90, 50);
 lb_volume.Location = new Point(20, 90);
 this.Controls.Add(lb_volume);
 
 tb_volume = new TyfloTrackBar();
-tb_volume.Size = new Size(130, 50);
-tb_volume.Location = new Point(70, 90);
+tb_volume.Size = new Size(490, 50);
+tb_volume.Location = new Point(110, 90);
 tb_volume.Minimum=0;
 tb_volume.Maximum=100;
 tb_volume.TickFrequency = 5;
@@ -81,13 +81,13 @@ this.Controls.Add(tb_volume);
 
 lb_tempo = new Label();
 lb_tempo.Text = "Tempo odtwarzania";
-lb_tempo.Size = new Size(50, 50);
+lb_tempo.Size = new Size(90, 50);
 lb_tempo.Location = new Point(20, 160);
 this.Controls.Add(lb_tempo);
 
 tb_tempo = new TyfloTrackBar();
-tb_tempo.Size = new Size(130, 50);
-tb_tempo.Location = new Point(70, 160);
+tb_tempo.Size = new Size(490, 50);
+tb_tempo.Location = new Point(110, 160);
 tb_tempo.Minimum=-50;
 tb_tempo.Maximum=50;
 tb_tempo.TickFrequency = 5;
@@ -99,15 +99,15 @@ controller.SetTempo(tb_tempo.Value);
 this.Controls.Add(tb_tempo);
 
 lb_chapters = new Label();
-lb_chapters.Text = "Rozdziały";
-lb_chapters.Size = new Size(240, 50);
-lb_chapters.Location = new Point(220, 20);
+lb_chapters.Text = "&Rozdziały";
+lb_chapters.Size = new Size(240, 20);
+lb_chapters.Location = new Point(20, 300);
 lb_chapters.Visible=false;
 this.Controls.Add(lb_chapters);
 
 lst_chapters = new ListBox();
-lst_chapters.Size = new Size(240, 140);
-lst_chapters.Location = new Point(220, 80);
+lst_chapters.Size = new Size(580, 140);
+lst_chapters.Location = new Point(20, 320);
 lst_chapters.Visible=false;
 lst_chapters.DoubleClick += (sender, e) => {
 GoToChapter();
@@ -120,37 +120,37 @@ tb_tempo.KeyDown += TBKeyDown;
 lst_chapters.KeyDown += TBKeyDown;
 
 btn_play = new Button();
-btn_play.Text = "Play/Pauza";
-btn_play.Size = new Size(50, 100);
+btn_play.Text = "P&lay/Pauza";
+btn_play.Size = new Size(100, 40);
 btn_play.Location = new Point(20, 240);
 btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
 
 btn_bookmarks = new Button();
-btn_bookmarks.Text = "Zakładki";
-btn_bookmarks.Size = new Size(50, 100);
-btn_bookmarks.Location = new Point(90, 240);
+btn_bookmarks.Text = "&Zakładki";
+btn_bookmarks.Size = new Size(100, 40);
+btn_bookmarks.Location = new Point(140, 240);
 btn_bookmarks.Click += (sender, e) => controller.Bookmarks(podcast, tb_timer.Value);
 this.Controls.Add(btn_bookmarks);
 
 btn_download = new Button();
-btn_download.Text = "Pobierz";
-btn_download.Size = new Size(50, 100);
-btn_download.Location = new Point(160, 240);
+btn_download.Text = "Po&bierz";
+btn_download.Size = new Size(100, 40);
+btn_download.Location = new Point(260, 240);
 btn_download.Click += (sender, e) => controller.DownloadPodcast(podcast);
 this.Controls.Add(btn_download);
 
 btn_comments = new Button();
-btn_comments.Text = "Pokaż komentarze";
-btn_comments.Size = new Size(50, 100);
-btn_comments.Location = new Point(230, 240);
-btn_comments.Click += (sender, e) => controller.ShowComments(podcast);
+btn_comments.Text = "Pokaż &komentarze";
+btn_comments.Size = new Size(100, 40);
+btn_comments.Location = new Point(380, 240);
+btn_comments.Click += (sender, e) => controller.ShowComments(podcast, true);
 this.Controls.Add(btn_comments);
 
 btn_close = new Button();
 btn_close.Text = "Zamknij";
-btn_close.Size = new Size(50, 100);
-btn_close.Location = new Point(300, 240);
+btn_close.Size = new Size(100, 40);
+btn_close.Location = new Point(500, 240);
 btn_close.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_close);
 
