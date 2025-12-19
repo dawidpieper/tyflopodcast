@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Data;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -83,6 +84,7 @@ hch.Proxy = null;
 hch.UseProxy = false;
 apiClient = new HttpClient(hch);
 apiClient.BaseAddress = new Uri(url);
+apiClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Tyflopodcast", Program.version));
 }
 
 private static string HTMLToText(String source) {
