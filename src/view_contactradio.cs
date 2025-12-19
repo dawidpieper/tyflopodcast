@@ -63,6 +63,7 @@ btn_cancel = new Button();
 btn_cancel.Text = "Anuluj";
 btn_cancel.Size = new Size(320, 60);
 btn_cancel.Location = new Point(345, 410);
+btn_cancel.Click += (sender, e) => this.Close();
 this.Controls.Add(btn_cancel);
 
 this.CancelButton = btn_cancel;

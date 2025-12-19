@@ -342,7 +342,7 @@ public void ContactRadioText() {
 (bool available, string title, string meeting) = Podcasts.GetRadioContactInfo();
 if(available) {
 wnd_contact = new ContactRadioWindow(this, title);
-wnd_contact.ShowDialog(wnd);
+wnd_contact.ShowDialog(wnd_radio!=null ? wnd_radio : wnd);
 } else
 MessageBox.Show("W tej chwili możliwość kontaktu jest wyłączona, możliwe, że nie trwa teraz żadna audycja interaktywna lub prowadzący nie umożliwił jeszcze komunikacji.", "Kontakt niemożliwy", MessageBoxButtons.OK, MessageBoxIcon.Error);
 }
