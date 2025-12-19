@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,8 +15,13 @@
 
 <ItemGroup>
   <Reference Include="Bass.NET">
-    <HintPath>lib\core\Bass.NET.dll</HintPath>
+    <HintPath>lib\Bass.Net.dll</HintPath>
   </Reference>
 </ItemGroup>
+
+  <ItemGroup>
+    <None Include="lib32\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="lib64\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>
