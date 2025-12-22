@@ -60,10 +60,10 @@ btn_play.Click += (sender, e) => controller.TogglePlayback();
 this.Controls.Add(btn_play);
 
 btn_contact = new Button();
-btn_contact.Text = "&Napisz lub zadzwoń do Tyfloradia";
+btn_contact.Text = "&Napisz do Tyfloradia";
 btn_contact.Size = new Size(100, 80);
 btn_contact.Location = new Point(140, 70);
-btn_contact.Click += (sender, e) => controller.ContactRadio();
+btn_contact.Click += (sender, e) => controller.ContactRadioText();
 this.Controls.Add(btn_contact);
 
 btn_close = new Button();
