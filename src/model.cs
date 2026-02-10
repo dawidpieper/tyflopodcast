@@ -61,10 +61,6 @@ public static List<Bookmark> bookmarks;
 
 public static List<int> likes;
 
-private static Dictionary<string, float> resumePositions;
-
-private static readonly object internalDataLock = new object();
-
 public const String url = "http://tyflopodcast.net";
 public const String jsonurl = "http://tyflopodcast.net/wp-json/wp/v2";
 public const String contacturl = "http://kontakt.tyflopodcast.net/json.php";
@@ -211,13 +207,11 @@ private static readonly byte[] MagicInternalNumber = {0xa4, 0x87, 0x42, 0x3f, 0x
 private static bool LoadInternal() {
 string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
 System.IO.Directory.CreateDirectory(datadir);
+likes = new List<int>();
+bookmarks = new List<Bookmark>();
+if(!File.Exists(datadir+"\\internal.dat")) return false;
 try {
-lock(internalDataLock) {
-	likes = new List<int>();
-	bookmarks = new List<Bookmark>();
-	resumePositions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
-	if(!File.Exists(datadir+"\\internal.dat")) return false;
-	using (BinaryReader br = new BinaryReader(File.Open(datadir+"\\internal.dat", FileMode.Open))) {
+using (BinaryReader br = new BinaryReader(File.Open(datadir+"\\internal.dat", FileMode.Open))) {
 for(int i=0; i<MagicInternalNumber.Count(); ++i)
 if(br.ReadByte() != MagicInternalNumber[i]) return false;
 int cnt_likes = br.ReadInt32();
@@ -230,27 +224,15 @@ b.name = br.ReadString();
 b.time = br.ReadSingle();
 bookmarks.Add(b);
 }
-
-if(br.BaseStream.Position < br.BaseStream.Length) {
-try {
-int cnt_resume = br.ReadInt32();
-for(int i=0; i<cnt_resume; ++i) {
-string key = br.ReadString();
-float position = br.ReadSingle();
-if(string.IsNullOrEmpty(key) || position < 0) continue;
-resumePositions[key] = position;
 }
-	} catch(EndOfStreamException) {
-	}
-	}
-	}
-	}
-	}
+}
 catch {return false;}
 return true;
 }
 
-private static bool SaveInternalLocked(string datadir) {
+private static bool SaveInternal() {
+string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
+System.IO.Directory.CreateDirectory(datadir);
 try {
 using (BinaryWriter bw = new BinaryWriter(File.Open(datadir+"\\internal.dat", FileMode.Create))) {
 for(int i=0; i<MagicInternalNumber.Count(); ++i)
@@ -263,28 +245,11 @@ bw.Write(b.podcast);
 bw.Write(b.name);
 bw.Write(b.time);
 }
-	if(resumePositions==null) resumePositions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
-	bw.Write(resumePositions.Count());
-	foreach(var kv in resumePositions) {
-	bw.Write(kv.Key);
-	bw.Write(kv.Value);
-	}
-	}
-	}
+}
+}
 catch {return false;}
 return true;
 }
-
-private static bool SaveInternal() {
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-	lock(internalDataLock) {
-	if(likes==null) likes = new List<int>();
-	if(bookmarks==null) bookmarks = new List<Bookmark>();
-	if(resumePositions==null) resumePositions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
-	return SaveInternalLocked(datadir);
-	}
-	}
 
 private static bool LoadLocalDB() {
 LoadInternal();
@@ -513,26 +478,16 @@ return (null,null);
 }
 
 public static void LikePodcast(Podcast podcast) {
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-lock(internalDataLock) {
-if(likes==null) likes = new List<int>();
 if(!likes.Contains(podcast.id)) {
 likes.Add(podcast.id);
-SaveInternalLocked(datadir);
-}
+SaveInternal();
 }
 }
 
 public static void DislikePodcast(Podcast podcast) {
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-lock(internalDataLock) {
-if(likes==null) likes = new List<int>();
 if(likes.Contains(podcast.id)) {
 likes.Remove(podcast.id);
-SaveInternalLocked(datadir);
-}
+SaveInternal();
 }
 }
 
@@ -555,67 +510,13 @@ var b = new Bookmark();
 b.podcast=podcast.id;
 b.time=time;
 b.name=name;
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-lock(internalDataLock) {
-if(bookmarks==null) bookmarks = new List<Bookmark>();
 bookmarks.Add(b);
-SaveInternalLocked(datadir);
-}
+SaveInternal();
 }
 
 public static void DeleteBookmark(Bookmark bookmark) {
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-lock(internalDataLock) {
-if(bookmarks==null) bookmarks = new List<Bookmark>();
 bookmarks.Remove(bookmark);
-SaveInternalLocked(datadir);
-}
-}
-
-public static string GetResumeKeyForPodcast(int podcastId) {
-if(podcastId<=0) return null;
-return "p:"+podcastId.ToString();
-}
-
-public static string GetResumeKeyForFile(string filePath) {
-if(string.IsNullOrWhiteSpace(filePath)) return null;
-try {
-filePath = Path.GetFullPath(filePath);
-} catch {
-}
-return "f:"+filePath.Trim();
-}
-
-public static float GetResumePosition(string key) {
-if(string.IsNullOrWhiteSpace(key)) return 0;
-lock(internalDataLock) {
-if(resumePositions==null) resumePositions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
-if(resumePositions.TryGetValue(key, out float position)) return position;
-return 0;
-}
-}
-
-public static void SetResumePosition(string key, float position) {
-if(string.IsNullOrWhiteSpace(key) || position<0) return;
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-lock(internalDataLock) {
-if(resumePositions==null) resumePositions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
-resumePositions[key]=position;
-SaveInternalLocked(datadir);
-}
-}
-
-public static void ClearResumePosition(string key) {
-if(string.IsNullOrWhiteSpace(key)) return;
-string datadir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\tyflopodcast";
-System.IO.Directory.CreateDirectory(datadir);
-lock(internalDataLock) {
-if(resumePositions==null) resumePositions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
-if(resumePositions.Remove(key)) SaveInternalLocked(datadir);
-}
+SaveInternal();
 }
 }
 }
