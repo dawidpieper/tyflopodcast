@@ -46,26 +46,14 @@ this.Controls.Add(btn_cancel);
 this.CancelButton = btn_cancel;
 }
 
-	public void SetStatus(String t) {
-	if(IsDisposed) return;
-	if(InvokeRequired) {
-	BeginInvoke(new Action<String>(SetStatus), t);
-	return;
-	}
-	lb_status.Text=t;
-	lb_status.Update();
-	}
+public void SetStatus(String t) {
+lb_status.Text=t;
+lb_status.Update();
+}
 
-	public void SetPercentage(int p) {
-	if(IsDisposed) return;
-	if(InvokeRequired) {
-	BeginInvoke(new Action<int>(SetPercentage), p);
-	return;
-	}
-	if(p<pb_percentage.Minimum) p=pb_percentage.Minimum;
-	if(p>pb_percentage.Maximum) p=pb_percentage.Maximum;
-	pb_percentage.Value=p;
-	pb_percentage.Update();
-	}
+public void SetPercentage(int p) {
+pb_percentage.Value=p;
+pb_percentage.Update();
+}
 }
 }

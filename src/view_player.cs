@@ -124,7 +124,6 @@ btn_play.Text = "P&lay/Pauza";
 btn_play.Size = new Size(100, 40);
 btn_play.Location = new Point(20, 240);
 btn_play.Click += (sender, e) => controller.TogglePlayback();
-btn_play.KeyDown += TBKeyDown;
 this.Controls.Add(btn_play);
 
 btn_bookmarks = new Button();
@@ -132,7 +131,6 @@ btn_bookmarks.Text = "&Zakładki";
 btn_bookmarks.Size = new Size(100, 40);
 btn_bookmarks.Location = new Point(140, 240);
 btn_bookmarks.Click += (sender, e) => controller.Bookmarks(podcast, tb_timer.Value);
-btn_bookmarks.KeyDown += TBKeyDown;
 this.Controls.Add(btn_bookmarks);
 
 btn_download = new Button();
@@ -140,7 +138,6 @@ btn_download.Text = "Po&bierz";
 btn_download.Size = new Size(100, 40);
 btn_download.Location = new Point(260, 240);
 btn_download.Click += (sender, e) => controller.DownloadPodcast(podcast);
-btn_download.KeyDown += TBKeyDown;
 this.Controls.Add(btn_download);
 
 btn_comments = new Button();
@@ -148,7 +145,6 @@ btn_comments.Text = "Pokaż &komentarze";
 btn_comments.Size = new Size(100, 40);
 btn_comments.Location = new Point(380, 240);
 btn_comments.Click += (sender, e) => controller.ShowComments(podcast, true);
-btn_comments.KeyDown += TBKeyDown;
 this.Controls.Add(btn_comments);
 
 btn_close = new Button();
@@ -156,7 +152,6 @@ btn_close.Text = "Zamknij";
 btn_close.Size = new Size(100, 40);
 btn_close.Location = new Point(500, 240);
 btn_close.Click += (sender, e) => this.Close();
-btn_close.KeyDown += TBKeyDown;
 this.Controls.Add(btn_close);
 
 this.CancelButton = btn_close;;
@@ -177,12 +172,6 @@ break;
 }
 
 public void TBKeyDown(Object sender, KeyEventArgs e) {
-if (e.Control && e.KeyCode == Keys.Home) {
-controller.RestartFromBeginning();
-e.Handled = true;
-e.SuppressKeyPress = true;
-return;
-}
 if (e.KeyCode == Keys.Space)
 controller.TogglePlayback();
 if(sender==(Object)lst_chapters && e.KeyCode == Keys.Enter) {
@@ -197,14 +186,11 @@ tb_timer.Update();
 UpdatePosition();
 }
 
-	public void SetPosition(double position) {
-	int v = (int)position;
-	if(v<tb_timer.Minimum) v=tb_timer.Minimum;
-	if(v>tb_timer.Maximum) v=tb_timer.Maximum;
-	tb_timer.Value = v;
-	tb_timer.Update();
-	UpdatePosition();
-	}
+public void SetPosition(double position) {
+tb_timer.Value = (int)position;
+tb_timer.Update();
+UpdatePosition();
+}
 
 private string FormatTime(int tim) {
 int hr, min, sec;

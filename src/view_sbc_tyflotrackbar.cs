@@ -47,11 +47,11 @@ return this.Value=Math.Min(this.Value + this.SmallChange, this.Maximum);
 }
 public int SmallDown() {
 return this.Value = Math.Max(this.Value - this.SmallChange, this.Minimum);
-	}
-	public int LargeUp () {
-	return this.Value = Math.Min(this.Value + this.LargeChange, this.Maximum);
-	}
-	public int LargeDown() {
-	return this.Value = Math.Max(this.Value - this.LargeChange, this.Minimum);
-	}
-	}
+}
+public int LargeUp () {
+return Math.Min(this.Value + this.LargeChange, this.Maximum);
+}
+public int LargeDown() {
+return this.Value = Math.Max(this.Value - this.LargeChange, this.Minimum);
+}
+}
