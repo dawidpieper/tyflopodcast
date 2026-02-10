@@ -38,9 +38,19 @@ private ContactRadioWindow wnd_contact;
 private ContactRadioPhoneWindow wnd_contactphone;
 private RadioProgramWindow wnd_program;
 private BookmarksWindow wnd_bookmarks;
-private System.Timers.Timer tm_audioposition=null;
+	private System.Timers.Timer tm_audioposition=null;
+	private AudioInfo.Chapter[] currentId3Chapters=null;
 
-private string[] args;
+	private const double ResumeCompletionThresholdSeconds = 30.0;
+	private const int ResumeSaveIntervalMs = 5000;
+
+	private string currentResumeKey = null;
+	private string currentStreamUrl = null;
+	private Mp3Seek.Info currentStreamMp3Info = null;
+	private double currentStreamBaseSeconds = 0;
+	private double currentStreamTotalDurationSeconds = 0;
+
+	private string[] args;
 
 public Controller(string[] targs) {
 args=targs;
@@ -51,17 +61,25 @@ public void SetWindow(TPWindow twnd) {
 wnd=twnd;
 }
 
-private void SetURL(string url) {
-if(stream!=0) FreeStream();
-int s = Bass.BASS_StreamCreateURL(url, 0, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE, null, IntPtr.Zero);
-stream = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_FX_FREESOURCE);
-}
+		private void SetURL(string url) {
+		currentStreamUrl = url;
+		currentStreamMp3Info = null;
+		currentStreamBaseSeconds = 0;
+		currentStreamTotalDurationSeconds = 0;
+		if(stream!=0) FreeStream();
+		int s = Bass.BASS_StreamCreateURL(url, 0, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE, null, IntPtr.Zero);
+		stream = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_FX_FREESOURCE);
+		}
 
-private void SetFile(string file) {
-if(stream!=0) FreeStream();
-int s = Bass.BASS_StreamCreateFile(file, 0, 0, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE);
-stream = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_FX_FREESOURCE);
-}
+		private void SetFile(string file) {
+		currentStreamUrl = null;
+		currentStreamMp3Info = null;
+		currentStreamBaseSeconds = 0;
+		currentStreamTotalDurationSeconds = 0;
+		if(stream!=0) FreeStream();
+		int s = Bass.BASS_StreamCreateFile(file, 0, 0, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE);
+		stream = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_FX_FREESOURCE);
+		}
 
 private void SetRadio() {
 SetURL("http://radio.tyflopodcast.net:8000");
@@ -80,46 +98,143 @@ else if(wnd_radio!=null)
 wnd_radio.SetVolume((int)(vol*100));
 }
 
-public double GetDuration() {
-if(stream==0) return 0;
-long t = Bass.BASS_ChannelGetLength(stream);
-double sec = Bass.BASS_ChannelBytes2Seconds(stream, t);
-return sec;
-}
+	public double GetDuration() {
+	if(stream==0) return 0;
+	if(currentStreamTotalDurationSeconds > 0) return currentStreamTotalDurationSeconds;
+	long t = Bass.BASS_ChannelGetLength(stream);
+	double sec = Bass.BASS_ChannelBytes2Seconds(stream, t);
+	return sec;
+	}
 
 private void FreeStream() {
-if(stream!=0) Bass.BASS_StreamFree(stream);
+if(stream!=0) {
+Bass.BASS_StreamFree(stream);
+stream=0;
+}
 }
 
-public void UpdatePosition() {
-if(stream==0 || wnd_player==null) return;
-long t = Bass.BASS_ChannelGetPosition(stream);
-double sec = Bass.BASS_ChannelBytes2Seconds(stream, t);
-wnd_player.SetPosition(sec);
-}
+		private double GetCurrentPositionSeconds() {
+		if(stream==0) return 0;
+		long t = Bass.BASS_ChannelGetPosition(stream);
+		return Bass.BASS_ChannelBytes2Seconds(stream, t);
+		}
 
-public void SetPosition(double position) {
+		private double GetLogicalPositionSeconds() {
+		return currentStreamBaseSeconds + GetCurrentPositionSeconds();
+		}
+
+		private bool TryRangeSeek(double absoluteSeconds, bool shouldResume) {
+		if(stream==0) return false;
+		if(string.IsNullOrEmpty(currentStreamUrl) || currentStreamMp3Info==null) return false;
+
+		if(absoluteSeconds < 0) absoluteSeconds = 0;
+		double total = GetDuration();
+		if(total > 0 && absoluteSeconds > total) absoluteSeconds = total;
+
+		long offset = Mp3Seek.GetFileOffsetForTime(currentStreamMp3Info, absoluteSeconds);
+		if(offset < 0) offset = 0;
+		int offset32 = offset > int.MaxValue ? int.MaxValue : (int)offset;
+
+		float vol = 0, tempo = 0;
+		Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, ref vol);
+		Bass.BASS_ChannelGetAttribute(stream, BASSAttribute.BASS_ATTRIB_TEMPO, ref tempo);
+
+		int source = Bass.BASS_StreamCreateURL(currentStreamUrl, offset32, BASSFlag.BASS_DEFAULT | BASSFlag.BASS_STREAM_DECODE, null, IntPtr.Zero);
+		if(source==0) return false;
+		int newStream = BassFx.BASS_FX_TempoCreate(source, BASSFlag.BASS_FX_FREESOURCE);
+		if(newStream==0) {
+		Bass.BASS_StreamFree(source);
+		return false;
+		}
+
+		Bass.BASS_StreamFree(stream);
+		stream = newStream;
+
+		Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, vol);
+		Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_TEMPO, tempo);
+
+		currentStreamBaseSeconds = absoluteSeconds;
+
+		if(wnd_player!=null) {
+		wnd_player.SetDuration(GetDuration());
+		wnd_player.SetVolume((int)(vol*100));
+		}
+
+		if(shouldResume) Bass.BASS_ChannelPlay(stream, false);
+		return true;
+		}
+
+	public void UpdatePosition() {
+	if(stream==0 || wnd_player==null) return;
+	double sec = GetLogicalPositionSeconds();
+	wnd_player.SetPosition(sec);
+	}
+
+		public void SetPosition(double position) {
+		if(stream==0) return;
+		if(position<0) position=0;
+		var active = Bass.BASS_ChannelIsActive(stream);
+		bool shouldResume = active == BASSActive.BASS_ACTIVE_PLAYING || active == BASSActive.BASS_ACTIVE_STALLED;
+		double relativeSeconds = position - currentStreamBaseSeconds;
+		if(relativeSeconds < 0) {
+		if(TryRangeSeek(position, shouldResume)) {
+		UpdatePosition();
+		return;
+		}
+		return;
+		}
+
+		long t = Bass.BASS_ChannelSeconds2Bytes(stream, relativeSeconds);
+		if(t<0) return;
+		if(Bass.BASS_ChannelSetPosition(stream, t)==false) {
+		var err = Bass.BASS_ErrorGetCode();
+		if(err == BASSError.BASS_ERROR_POSITION) {
+		if(TryRangeSeek(position, shouldResume)) {
+		UpdatePosition();
+		return;
+		}
+		}
+		if(wnd_player!=null) {
+		Bass.BASS_ChannelPause(stream);
+		var l = new LoadingWindow("Buforowanie...");
+		l.SetStatus("Buforowanie...");
+		bool cancelled = false;
+		l.FormClosed += (s, e) => cancelled = true;
+	var _ = l.Handle;
+	long length = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_SIZE);
+	long prebuffered = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
+		double duration = GetDuration();
+		long needed = (length > 0 && duration > 0) ? (long)(length*position/duration) : -1;
+		Task.Factory.StartNew(async ()=> {
+		do {
+		if(cancelled) break;
+		await Task.Delay(250);
+	long downloaded = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
+	if(needed > 0 && needed > prebuffered) {
+	int p = (int)((100*(downloaded-prebuffered)/(needed-prebuffered)));
+	if(p<0) p=0;
+	if(p>100) p=100;
+	if(p<100) l.SetPercentage(p);
+	}
+	} while(Bass.BASS_ChannelSetPosition(stream, t)==false && !cancelled);
+	if(!l.IsDisposed) l.BeginInvoke(new Action(()=> { if(!l.IsDisposed) l.Close(); }));
+		});
+		l.ShowDialog(wnd_player);
+		if(shouldResume) Bass.BASS_ChannelPlay(stream, false);
+		}
+		}
+		UpdatePosition();
+		}
+
+public void RestartFromBeginning() {
 if(stream==0) return;
-long t = Bass.BASS_ChannelSeconds2Bytes(stream, position);
-if(wnd_player!=null && Bass.BASS_ChannelSetPosition(stream, t)==false) {
-Bass.BASS_ChannelPause(stream);
-var l = new LoadingWindow("Buforowanie...");
-l.SetStatus("Buforowanie...");
-long length = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_SIZE);
-long prebuffered = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
-long needed = (long)(length*position/GetDuration());
-Task.Factory.StartNew(async ()=> {
-do {
-await Task.Delay(250);
-long downloaded = Bass.BASS_StreamGetFilePosition(stream, BASSStreamFilePosition.BASS_FILEPOS_DOWNLOAD);
-int p = (int)((100*(downloaded-prebuffered)/(needed-prebuffered)));
-if(p<100) l.SetPercentage(p);
-} while(Bass.BASS_ChannelSetPosition(stream, t)==false);
-if(!l.IsDisposed) l.Close();
-});
-l.ShowDialog(wnd_player);
-}
-UpdatePosition();
+bool wasPlaying = Bass.BASS_ChannelIsActive(stream) == BASSActive.BASS_ACTIVE_PLAYING;
+if(!string.IsNullOrEmpty(currentResumeKey))
+Podcasts.ClearResumePosition(currentResumeKey);
+SetPosition(0);
+if(!string.IsNullOrEmpty(currentResumeKey))
+Podcasts.ClearResumePosition(currentResumeKey);
+if(wasPlaying) Play();
 }
 
 public void SetVolume(int volume) {
@@ -134,14 +249,63 @@ else t=tempo*3;
 Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_TEMPO, t);
 }
 
-public void PodcastSelected(Podcast p, string location=null) {
-wnd_player = new PlayerWindow(p, this);
-if(location==null)
-SetURL("http://tyflopodcast.net/pobierz.php?id="+p.id.ToString()+"&plik=0");
-else
-SetFile(location);
-UpdateAudioInfo(p);
-Play();
+	public void PodcastSelected(Podcast p, string location=null) {
+	wnd_player = new PlayerWindow(p, this);
+	currentId3Chapters=null;
+	string resumeKey = (location==null) ? Podcasts.GetResumeKeyForPodcast(p.id) : Podcasts.GetResumeKeyForFile(location);
+	currentResumeKey = resumeKey;
+	double resumeSeconds = Podcasts.GetResumePosition(resumeKey);
+	double lastSavedPosition = -1;
+	System.Timers.Timer tm_resumeSave = null;
+		if(location==null)
+		SetURL("http://tyflopodcast.net/pobierz.php?id="+p.id.ToString()+"&plik=0");
+		else
+		SetFile(location);
+		UpdateAudioInfo(p);
+		if(location==null && !string.IsNullOrEmpty(currentStreamUrl)) {
+		if(Mp3Seek.TryFetchInfo(currentStreamUrl, out Mp3Seek.Info info)) {
+		currentStreamMp3Info = info;
+		currentStreamTotalDurationSeconds = info.durationSeconds;
+		}
+		}
+		if(wnd_player!=null) wnd_player.SetDuration(GetDuration());
+
+		bool doResume = !string.IsNullOrEmpty(resumeKey) && resumeSeconds > 0;
+		double initialDuration = GetDuration();
+		if(doResume && initialDuration > 0 && (initialDuration - resumeSeconds) <= ResumeCompletionThresholdSeconds) {
+		Podcasts.ClearResumePosition(resumeKey);
+	doResume = false;
+	}
+
+	if(doResume) {
+	SetPosition(resumeSeconds);
+	}
+
+	Play();
+
+	if(!string.IsNullOrEmpty(resumeKey)) {
+	tm_resumeSave = new System.Timers.Timer(ResumeSaveIntervalMs);
+	tm_resumeSave.AutoReset = true;
+	tm_resumeSave.Enabled = true;
+		tm_resumeSave.Elapsed += (sender, e) => {
+		try {
+		if(stream==0) return;
+		double positionSeconds = GetLogicalPositionSeconds();
+		if(positionSeconds < 1.0) return;
+		double duration = GetDuration();
+		if(duration>0 && (duration - positionSeconds) <= ResumeCompletionThresholdSeconds) {
+		Podcasts.ClearResumePosition(resumeKey);
+	return;
+	}
+	if(lastSavedPosition>=0 && Math.Abs(positionSeconds-lastSavedPosition) < 1.0) return;
+	Podcasts.SetResumePosition(resumeKey, (float)positionSeconds);
+	lastSavedPosition = positionSeconds;
+	} catch {
+	}
+	};
+	tm_resumeSave.Start();
+	}
+
 tm_audioposition = new System.Timers.Timer(250);
 tm_audioposition.AutoReset = true;
 tm_audioposition.Enabled = true;
@@ -149,12 +313,39 @@ tm_audioposition.Elapsed += (sender, e) => {
 UpdatePosition();
 };
 wnd_player.ShowDialog(wnd);
+
+if(tm_resumeSave!=null) {
+tm_resumeSave.Stop();
+tm_resumeSave.Dispose();
+tm_resumeSave=null;
+}
+		if(!string.IsNullOrEmpty(resumeKey) && stream!=0) {
+		try {
+		double positionSeconds = GetLogicalPositionSeconds();
+		if(positionSeconds < 1.0) {
+		Podcasts.ClearResumePosition(resumeKey);
+		} else {
+		double duration = GetDuration();
+	if(duration>0 && (duration - positionSeconds) <= ResumeCompletionThresholdSeconds)
+	Podcasts.ClearResumePosition(resumeKey);
+	else
+	Podcasts.SetResumePosition(resumeKey, (float)positionSeconds);
+	}
+	} catch {
+	}
+	}
+
 FreeStream();
 tm_audioposition.Stop();
 tm_audioposition.Dispose();
-tm_audioposition=null;
-wnd_player=null;
-}
+		tm_audioposition=null;
+		currentResumeKey=null;
+		currentStreamUrl=null;
+		currentStreamMp3Info=null;
+		currentStreamBaseSeconds=0;
+		currentStreamTotalDurationSeconds=0;
+		wnd_player=null;
+		}
 
 private SYNCPROC metaSync;
 
@@ -477,7 +668,11 @@ if(ai==null) return;
 wnd_player.SetName(ai.title);
 wnd_player.SetArtist(ai.artist);
 var chapters = new List<AudioInfo.Chapter>();
-foreach(AudioInfo.Chapter ch in ai.chapters) chapters.Add(ch);
+AudioInfo.Chapter[] id3Chapters = ai.chapters;
+if(id3Chapters!=null && id3Chapters.Length>0) currentId3Chapters=id3Chapters;
+else if(currentId3Chapters==null && id3Chapters!=null) currentId3Chapters=id3Chapters;
+if(currentId3Chapters!=null)
+foreach(AudioInfo.Chapter ch in currentId3Chapters) chapters.Add(ch);
 foreach(Bookmark b in Podcasts.GetPodcastBookmarks(p)) {
 var ch = new AudioInfo.Chapter();
 ch.name="Zakładka: "+b.name;
