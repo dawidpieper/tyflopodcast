@@ -117,9 +117,13 @@ internal static class Mp3Seek {
 				req.Headers.Range = new RangeHeaderValue(from, to);
 				req.Headers.AcceptEncoding.Clear();
 				req.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("identity"));
-				using(var resp = http.Send(req, HttpCompletionOption.ResponseHeadersRead)) {
-					totalBytes = resp.Content.Headers.ContentRange?.Length ?? resp.Content.Headers.ContentLength ?? -1;
-					using(Stream s = resp.Content.ReadAsStream()) {
+				using(var resp = http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead).GetAwaiter().GetResult()) {
+					if(!resp.IsSuccessStatusCode) return false;
+					long? contentRangeLength = null;
+					if(resp.Content.Headers.ContentRange != null)
+						contentRangeLength = resp.Content.Headers.ContentRange.Length;
+					totalBytes = contentRangeLength ?? resp.Content.Headers.ContentLength ?? -1;
+					using(Stream s = resp.Content.ReadAsStreamAsync().GetAwaiter().GetResult()) {
 						int max = (int)(to - from + 1);
 						byte[] buf = new byte[max];
 						int read = 0;
